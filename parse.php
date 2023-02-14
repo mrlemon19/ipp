@@ -15,7 +15,16 @@ if ($argv[1] == "--help") {
 $source = fopen($argv[1], "r") or exit (11); // TODO: error message
 
 while ($line = fgets($source)) {
-    echo $line;
+    $linearr = explode(" ", $line);
+    for ($i = 0; $i < count($linearr); $i++) {
+        //echo $linearr[$i]."\n";
+        if ($linearr[$i] == "#"){
+            break;
+        }
+        else{
+            echo $linearr[$i];
+        }
+    }
 }
 
 fclose($source);

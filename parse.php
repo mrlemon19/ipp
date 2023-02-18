@@ -2,6 +2,73 @@
 // ipp projects, xlukas18 2023
 //ini_set('display_errors', 'stderr');
 
+function count_args($args, $count){
+    if (count($args) != $count){
+        echo "Chyba: Nespravny pocet argumentu.\n";
+        exit(23);
+    }
+}
+
+// functions to check syntax of instruction arguments
+function check_var($var){
+    if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $var)){
+        return;
+    }
+    else{
+        echo "Chyba: Neplatna promenna.\n";
+        exit(23);
+    }
+}
+
+function check_sym($sym){
+    if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $sym)){
+        return;
+    }
+    else if (preg_match("/^int@([+-]?[0-9]+)$/", $sym)){
+        return;
+    }
+    else if (preg_match("/^bool@(true|false)$/", $sym)){
+        return;
+    }
+    else if (preg_match("/^string@([^\s#\\\\]|\\\\[0-9]{3})*$/", $sym)){
+        return;
+    }
+    else if (preg_match("/^nil@nil$/", $sym)){
+        return;
+    }
+    else{
+        echo "Chyba: Neplatny symbol.\n";
+        exit(23);
+    }
+}
+
+function check_label($label){
+    if (preg_match("/^([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $label)){
+        return;
+    }
+    else{
+        echo "Chyba: Neplatny label.\n";
+        exit(23);
+    }
+}
+
+function check_type($type){
+    if (preg_match("/^(int|string|bool)$/", $type)){
+        return;
+    }
+    else{
+        echo "Chyba: Neplatny typ.\n";
+        exit(23);
+    }
+}
+
+function check_3argsinst($args){
+    count_args($args, 4);
+    check_var($args[1]);
+    check_sym($args[2]);
+    check_sym($args[3]);
+}
+
 // input handle
 if ($argc != 2) {
     echo "Chyba: Nespravny pocet argumentu.\n";
@@ -32,132 +99,179 @@ while ($line = fgets($source)) {
             $line = substr($line, 0, $pos);
     }
 
-    $linesplit = explode(" ", $line);
+    $line = trim($line);
+    $linesplit = preg_split('/\s+/', $line);
     $linesplit[count($linesplit)-1] = rtrim($linesplit[count($linesplit)-1], "\n");
-    
-    switch($linesplit[0]){
-        case "MOVE":
-            echo "MOVE";
-            break;
-        case "CREATEFRAME":
-            echo "CREATEFRAME";
-            break;
-        case "PUSHFRAME":
-            echo "PUSHFRAME";
-            break;
-        case "POPFRAME":
-            echo "POPFRAME";
-            break;
-        case "DEFVAR":
-            echo "DEFVAR";
-            break;
-        case "CALL":
-            echo "CALL";
-            break;
-        case "RETURN":
-            echo "RETURN";
-            break;
-        case "PUSHS":
-            echo "PUSHS";
-            break;
-        case "POPS":
-            echo "POPS";
-            break;
-        case "ADD":
-            echo "ADD";
-            break;
-        case "SUB":
-            echo "SUB";
-            break;
-        case "MUL":
-            echo "MUL";
-            break;
-        case "IDIV":
-            echo "IDIV";
-            break;
-        case "LT":
-            echo "LT";
-            break;
-        case "GT":
-            echo "GT";
-            break;
-        case "EQ":
-            echo "EQ";
-            break;
-        case "AND":
-            echo "AND";
-            break;
-        case "OR":
-            echo "OR";
-            break;
-        case "NOT":
-            echo "NOT";
-            break;
-        case "INT2CHAR":
-            echo "INT2CHAR";
-            break;
-        case "STRI2INT":
-            echo "STRI2INT";
-            break;
-        case "READ":
-            echo "READ";
-            break;
-        case "WRITE":
-            echo "WRITE";
-            break;
-        case "CONCAT":
-            echo "CONCAT";
-            break;
-        case "STRLEN":
-            echo "STRLEN";
-            break;
-        case "GETCHAR":
-            echo "GETCHAR";
-            break;
-        case "SETCHAR":
-            echo "SETCHAR";
-            break;
-        case "TYPE":
-            echo "TYPE";
-            break;
-        case "LABEL":
-            echo "LABEL";
-            break;
-        case "JUMP":
-            echo "JUMP";
-            break;
-        case "JUMPIFEQ":
-            echo "JUMPIFEQ";
-            break;
-        case "JUMPIFNEQ":
-            echo "JUMPIFNEQ";
-            break;
-        case "EXIT":
-            echo "EXIT";
-            break;
-        case "DPRINT":
-            echo "DPRINT";
-            break;
-        case "BREAK":    
-            echo "BREAK";
-            break;
-        default:
-            echo "Chyba: Neznamy instrukcni kod.\n";
-            echo $linesplit[0]."\n";
-            exit(22);
 
+    if (strcasecmp($linesplit[0], "move") == 0){
+        count_args($linesplit, 3);
+        check_var($linesplit[1]);
+        check_sym($linesplit[2]);
+        echo "MOVE\n";
     }
-
-    //for ($i = 0; $i < count($linesplit); $i++) {
-    //
-    //    if ($linesplit[$i] == "#"){
-    //        break;
-    //    }
-    //    else{
-    //        echo $linesplit[$i];
-    //        
-    //    }
-    //}
+    else if (strcasecmp($linesplit[0], "createframe") == 0){
+        count_args($linesplit, 1);
+        echo "CREATEFRAME\n";
+    }
+    else if (strcasecmp($linesplit[0], "pushframe") == 0){
+        count_args($linesplit, 1);
+        echo "PUSHFRAME\n";
+    }
+    else if (strcasecmp($linesplit[0], "popframe") == 0){
+        count_args($linesplit, 1);
+        echo "POPFRAME\n";
+    }
+    else if (strcasecmp($linesplit[0], "defvar") == 0){
+        count_args($linesplit, 2);
+        check_var($linesplit[1]);
+        echo "DEFVAR\n";
+    }
+    else if (strcasecmp($linesplit[0], "call") == 0){
+        count_args($linesplit, 2);
+        check_label($linesplit[1]);
+        echo "CALL\n";
+    }
+    else if (strcasecmp($linesplit[0], "return") == 0){
+        count_args($linesplit, 1);
+        echo "RETURN\n";
+    }
+    else if (strcasecmp($linesplit[0], "pushs") == 0){
+        count_args($linesplit, 2);
+        check_sym($linesplit[1]);
+        echo "PUSHS\n";
+    }
+    else if (strcasecmp($linesplit[0], "pops") == 0){
+        count_args($linesplit, 2);
+        check_var($linesplit[1]);
+        echo "POPS\n";
+    }
+    else if (strcasecmp($linesplit[0], "add") == 0){
+        check_3argsinst($linesplit);
+        echo "ADD\n";
+    }
+    else if (strcasecmp($linesplit[0], "sub") == 0){
+        check_3argsinst($linesplit);
+        echo "SUB\n";
+    }
+    else if (strcasecmp($linesplit[0], "mul") == 0){
+        check_3argsinst($linesplit);
+        echo "MUL\n";
+    }
+    else if (strcasecmp($linesplit[0], "idiv") == 0){
+        check_3argsinst($linesplit);
+        echo "IDIV\n";
+    }
+    else if (strcasecmp($linesplit[0], "lt") == 0){
+        check_3argsinst($linesplit);
+        echo "LT\n";
+    }
+    else if (strcasecmp($linesplit[0], "gt") == 0){
+        check_3argsinst($linesplit);
+        echo "GT\n";
+    }
+    else if (strcasecmp($linesplit[0], "eq") == 0){
+        check_3argsinst($linesplit);
+        echo "EQ\n";
+    }
+    else if (strcasecmp($linesplit[0], "and") == 0){
+        check_3argsinst($linesplit);
+        echo "AND\n";
+    }
+    else if (strcasecmp($linesplit[0], "or") == 0){
+        check_3argsinst($linesplit);
+        echo "OR\n";
+    }
+    else if (strcasecmp($linesplit[0], "not") == 0){
+        check_3argsinst($linesplit);
+        echo "NOT\n";
+    }
+    else if (strcasecmp($linesplit[0], "int2char") == 0){
+        count_args($linesplit, 3);
+        check_var($linesplit[1]);
+        check_sym($linesplit[2]);
+        echo "INT2CHAR\n";
+    }
+    else if (strcasecmp($linesplit[0], "stri2int") == 0){
+        check_3argsinst($linesplit);        
+        echo "STRI2INT\n";
+    }
+    else if (strcasecmp($linesplit[0], "read") == 0){
+        count_args($linesplit, 3);
+        check_var($linesplit[1]);
+        check_type($linesplit[2]);
+        echo "READ\n";
+    }
+    else if (strcasecmp($linesplit[0], "write") == 0){
+        count_args($linesplit, 2);
+        check_sym($linesplit[1]);
+        echo "WRITE\n";
+    }
+    else if (strcasecmp($linesplit[0], "concat") == 0){
+        check_3argsinst($linesplit);
+        echo "CONCAT\n";
+    }
+    else if (strcasecmp($linesplit[0], "strlen") == 0){
+        count_args($linesplit, 3);
+        check_var($linesplit[1]);
+        check_sym($linesplit[2]);
+        echo "STRLEN\n";
+    }
+    else if (strcasecmp($linesplit[0], "getchar") == 0){
+        check_3argsinst($linesplit);
+        echo "GETCHAR\n";
+    }
+    else if (strcasecmp($linesplit[0], "setchar") == 0){
+        check_3argsinst($linesplit);
+        echo "SETCHAR\n";
+    }
+    else if (strcasecmp($linesplit[0], "type") == 0){
+        count_args($linesplit, 3);
+        check_var($linesplit[1]);
+        check_sym($linesplit[2]);
+        echo "TYPE\n";
+    }
+    else if (strcasecmp($linesplit[0], "label") == 0){
+        count_args($linesplit, 2);
+        check_label($linesplit[1]);
+        echo "LABEL\n";
+    }
+    else if (strcasecmp($linesplit[0], "jump") == 0){
+        count_args($linesplit, 2);
+        check_label($linesplit[1]);
+        echo "JUMP\n";
+    }
+    else if (strcasecmp($linesplit[0], "jumpifeq") == 0){
+        count_args($linesplit, 4);
+        check_label($linesplit[1]);
+        check_sym($linesplit[2]);
+        check_sym($linesplit[3]);
+        echo "JUMPIFEQ\n";
+    }
+    else if (strcasecmp($linesplit[0], "jumpifneq") == 0){
+        count_args($linesplit, 4);
+        check_label($linesplit[1]);
+        check_sym($linesplit[2]);
+        check_sym($linesplit[3]);
+        echo "JUMPIFNEQ\n";
+    }
+    else if (strcasecmp($linesplit[0], "exit") == 0){
+        count_args($linesplit, 2);
+        check_sym($linesplit[1]);
+        echo "EXIT\n";
+    }
+    else if (strcasecmp($linesplit[0], "dprint") == 0){
+        count_args($linesplit, 2);
+        check_sym($linesplit[1]);
+        echo "DPRINT\n";
+    }
+    else if (strcasecmp($linesplit[0], "break") == 0){
+        count_args($linesplit, 1);
+        echo "BREAK\n";
+    }
+    else{
+        echo "ERROR: Unknown instruction.\n";
+        exit(22);
+    }
 }
 
 fclose($source);

@@ -82,14 +82,9 @@ if ($argv[1] == "--help") {
 }
 
 $source = fopen($argv[1], "r") or exit (11); // TODO: error message
+$headerok = false;
 
 while ($line = fgets($source)) {
-
-    if ($line == "\n" || $line == ".IPPcode23\n"){
-        continue;
-    }
-
-    // TODO propper header check
     
     // comment remooval
     if (($pos = strpos($line, "#")) !== false) {
@@ -97,6 +92,28 @@ while ($line = fgets($source)) {
             continue;
         else
             $line = substr($line, 0, $pos);
+    }
+
+    // checking header
+    if (!$headerok){
+        $line = trim($line);
+        $headersplit = preg_split('/\s+/', $line);
+        echo "header: ".$headersplit[0]."\n";
+        echo "count(\$headersplit): ".count($headersplit)."\n";
+        echo "strcasecmp(): ".strcasecmp($headersplit[0], ".ippcode23")."\n";
+        if (count($headersplit) == 1 && strcasecmp($headersplit[0], ".ippcode23") == 0){
+            $headerok = true;
+            continue;
+        }
+        else{
+            echo "Chyba hlavicky\n";
+            exit(21);
+        }
+    }
+
+    // skips empty line
+    if ($line == "\n"){
+        continue;
     }
 
     $line = trim($line);

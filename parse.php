@@ -86,8 +86,16 @@ function print_instruction($args, $instorder){
             echo "\t\t<arg".($i)." type=\"var\">".$args[$i]."</arg".($i).">\n";
         }
         else{
-            $position = strpos($args[$i], "@");
-            echo "\t\t<arg".($i)." type=\"".$argsplit[0]."\">".substr($args[$i], $position + 1)."</arg".($i).">\n";
+            if (count($argsplit) > 1){
+                $position = strpos($args[$i], "@");
+                echo "\t\t<arg".($i)." type=\"".$argsplit[0]."\">".substr($args[$i], $position + 1)."</arg".($i).">\n";
+                //echo "*debug*\n";
+                //print_r($argsplit);
+                //echo "*debug*\n";
+            }
+            else{
+                echo "\t\t<arg".($i)." type=\"label\">".$args[$i]."</arg".($i).">\n";
+            }
         }
     }
     
@@ -96,10 +104,10 @@ function print_instruction($args, $instorder){
 }
 
 // input handle
-if ($argc != 2) {
-    echo "Chyba: Nespravny pocet argumentu.\n";
-    exit(10);
-}
+//if ($argc != 2) {
+//    echo "Chyba: Nespravny pocet argumentu.\n";
+//    exit(10);
+//}
 
 if ($argv[1] == "--help") {
     // TODO official help message

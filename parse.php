@@ -70,49 +70,46 @@ function check_3argsinst($args){
 }
 
 function print_instruction($args, $instorder){
-    global $instorder;
     
-    if ($instorder == 1){
-        echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-        echo "<program language=\"IPPcode23\">\n";
-    }
+    global $instorder;
 
-    echo "\t<instruction order=\"".$instorder."\" opcode=\"".strtoupper($args[0])."\">\n";
+    echo " <instruction order=\"".$instorder."\" opcode=\"".strtoupper($args[0])."\">\n";
     
     for ($i = 1; $i < count($args); $i++){
         $argsplit = explode("@", $args[$i]);
         
         if ($argsplit[0] == "GF" || $argsplit[0] == "LF" || $argsplit[0] == "TF"){
-            echo "\t\t<arg".($i)." type=\"var\">".$args[$i]."</arg".($i).">\n";
+            echo "  <arg".($i)." type=\"var\">".$args[$i]."</arg".($i).">\n";
         }
         else{
             if (count($argsplit) > 1){
                 $position = strpos($args[$i], "@");
-                echo "\t\t<arg".($i)." type=\"".$argsplit[0]."\">".substr($args[$i], $position + 1)."</arg".($i).">\n";
+                echo "  <arg".($i)." type=\"".$argsplit[0]."\">".substr($args[$i], $position + 1)."</arg".($i).">\n";
                 //echo "*debug*\n";
                 //print_r($argsplit);
                 //echo "*debug*\n";
             }
             else{
-                echo "\t\t<arg".($i)." type=\"label\">".$args[$i]."</arg".($i).">\n";
+                echo "  <arg".($i)." type=\"label\">".$args[$i]."</arg".($i).">\n";
             }
         }
     }
     
-    echo "\t</instruction>\n";
+    echo " </instruction>\n";
     $instorder++;
 }
 
 // input handle
-//if ($argc != 2) {
-//    echo "Chyba: Nespravny pocet argumentu.\n";
-//    exit(10);
-//}
-
-if ($argv[1] == "--help") {
-    // TODO official help message
-    echo "Skript pro parsovani IPPcode23 zdrojaku do XML reprezentace.\n";
-    exit(0);
+if ($argc > 1){
+    if ($argv[1] == "--help") {
+        // TODO official help message
+        echo "Skript pro parsovani IPPcode23 zdrojaku do XML reprezentace.\n";
+        exit(0);
+    }
+    else{
+        echo "Chyba: Nespravny argument.\n";
+        exit(10);
+    }
 }
 
 $headerok = false;  // true if header is valid
@@ -128,6 +125,11 @@ while ($line = fgets(STDIN)) {
             $line = substr($line, 0, $pos);
     }
 
+    // skips empty line
+    if ($line == "\n"){
+        continue;
+    }
+
     // checking header
     if (!$headerok){
         $line = trim($line);
@@ -138,17 +140,14 @@ while ($line = fgets(STDIN)) {
         //echo "strcasecmp(): ".strcasecmp($headersplit[0], ".ippcode23")."\n";
         if (count($headersplit) == 1 && strcasecmp($headersplit[0], ".ippcode23") == 0){
             $headerok = true;
+            echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+            echo "<program language=\"IPPcode23\">\n";
             continue;
         }
         else{
             echo "Chyba hlavicky\n";
             exit(21);
         }
-    }
-
-    // skips empty line
-    if ($line == "\n"){
-        continue;
     }
 
     $line = trim($line);

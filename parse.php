@@ -2,20 +2,21 @@
 // ipp projects, xlukas18 2023
 //ini_set('display_errors', 'stderr');
 
+// funkce pro kontrolu spravneho poctu argumentu instrukce
 function count_args($args, $count){
     if (count($args) != $count){
-        echo "Chyba: Nespravny pocet argumentu.\n";
+        echo "parse.php(23): spatny pocet argumentu ".join(" ", $args).", ".$count." expected ".count($args)." got\n";
         exit(23);
     }
 }
 
-// functions to check syntax of instruction arguments
+// funkce pro kontrolu syntakticke spravnosti promenne, symbolu, labelu a typu
 function check_var($var){
     if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $var)){
         return;
     }
     else{
-        echo "Chyba: Neplatna promenna.\n";
+        echo "parse.php(23): chybne zapsana promena ".$var."\n";
         exit(23);
     }
 }
@@ -37,7 +38,7 @@ function check_sym($sym){
         return;
     }
     else{
-        echo "Chyba: Neplatny symbol.\n";
+        echo "parse.php(23): chybne zapsany symbol ".$sym."\n";
         exit(23);
     }
 }
@@ -47,7 +48,7 @@ function check_label($label){
         return;
     }
     else{
-        echo "Chyba: Neplatny label.\n";
+        echo "parse.php(23): chybne zapsany label ".$label."\n";
         exit(23);
     }
 }
@@ -57,7 +58,7 @@ function check_type($type){
         return;
     }
     else{
-        echo "Chyba: Neplatny typ.\n";
+        echo "parse.php(23): neplatny typ ".$type."\n";
         exit(23);
     }
 }
@@ -69,6 +70,7 @@ function check_3argsinst($args){
     check_sym($args[3]);
 }
 
+// funkce pro vypis xml reprezentace instrukce
 function print_instruction($args, $instorder){
     
     global $instorder;
@@ -76,20 +78,22 @@ function print_instruction($args, $instorder){
     echo " <instruction order=\"".$instorder."\" opcode=\"".strtoupper($args[0])."\">\n";
     
     for ($i = 1; $i < count($args); $i++){
+        
         $argsplit = explode("@", $args[$i]);
         
         if ($argsplit[0] == "GF" || $argsplit[0] == "LF" || $argsplit[0] == "TF"){
+            // promena
             echo "  <arg".($i)." type=\"var\">".$args[$i]."</arg".($i).">\n";
         }
         else{
+            // symbol/label/typ
             if (count($argsplit) > 1){
+                // symbol/typ
                 $position = strpos($args[$i], "@");
                 echo "  <arg".($i)." type=\"".$argsplit[0]."\">".substr($args[$i], $position + 1)."</arg".($i).">\n";
-                //echo "*debug*\n";
-                //print_r($argsplit);
-                //echo "*debug*\n";
             }
             else{
+                // label
                 echo "  <arg".($i)." type=\"label\">".$args[$i]."</arg".($i).">\n";
             }
         }
@@ -102,22 +106,23 @@ function print_instruction($args, $instorder){
 // input handle
 if ($argc > 1){
     if ($argv[1] == "--help") {
-        // TODO official help message
-        echo "Skript pro parsovani IPPcode23 zdrojaku do XML reprezentace.\n";
+        // help message
+        echo "parse.php\nTento skript preklada kod zapsany v IPPcode23 do XML reprezentace.\n";
+        echo "Usage: php parse.php [--help] <inputfile\n";
         exit(0);
     }
     else{
-        echo "Chyba: Nespravny argument.\n";
+        echo "parse.php(10): Nespravny argument.\n";
         exit(10);
     }
 }
 
-$headerok = false;  // true if header is valid
-$instorder = 1;     // instruction order
+$headerok = false;  // hlavicka je validni
+$instorder = 1;     // poradi instrukce
 
 while ($line = fgets(STDIN)) {
     
-    // comment removal
+    // preskoceni komentare
     if (($pos = strpos($line, "#")) !== false) {
         if ($pos == 0)
             continue;
@@ -125,19 +130,16 @@ while ($line = fgets(STDIN)) {
             $line = substr($line, 0, $pos);
     }
 
-    // skips empty line
+    // preskoceni prazdneho radku
     if ($line == "\n"){
         continue;
     }
 
-    // checking header
+    // kontrola hlavicky
     if (!$headerok){
         $line = trim($line);
         $headersplit = preg_split('/\s+/', $line);
-        // *debug*
-        //echo "header: ".$headersplit[0]."\n";
-        //echo "count(\$headersplit): ".count($headersplit)."\n";
-        //echo "strcasecmp(): ".strcasecmp($headersplit[0], ".ippcode23")."\n";
+        
         if (count($headersplit) == 1 && strcasecmp($headersplit[0], ".ippcode23") == 0){
             $headerok = true;
             echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -145,11 +147,12 @@ while ($line = fgets(STDIN)) {
             continue;
         }
         else{
-            echo "Chyba hlavicky\n";
+            echo "parse.php(21): chybne zapsana hlavicka\n";
             exit(21);
         }
     }
 
+    // odstraneni mezer a tabulatoru
     $line = trim($line);
     $linesplit = preg_split('/\s+/', $line);
     $linesplit[count($linesplit)-1] = rtrim($linesplit[count($linesplit)-1], "\n");

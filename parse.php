@@ -95,7 +95,7 @@ function print_instruction($args, $instorder){
     $instorder++;
 }
 
- input handle
+// input handle
 if ($argc != 2) {
     echo "Chyba: Nespravny pocet argumentu.\n";
     exit(10);

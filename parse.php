@@ -79,6 +79,11 @@ function print_instruction($args, $instorder){
     
     for ($i = 1; $i < count($args); $i++){
         
+        // prepsani problematickych znaku do xlm varianty
+        $args[$i] = str_replace("<", "&lt;", $args[$i]);
+        $args[$i] = str_replace(">", "&gt;", $args[$i]);
+        $args[$i] = str_replace("&", "&amp;", $args[$i]);
+
         $argsplit = explode("@", $args[$i]);
         
         if ($argsplit[0] == "GF" || $argsplit[0] == "LF" || $argsplit[0] == "TF"){

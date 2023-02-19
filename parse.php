@@ -1,5 +1,5 @@
 <?php
-// ipp projects, xlukas18 2023
+// ipp 2023 project: parse.php, @author: Jakub Lukas, xlukas18
 //ini_set('display_errors', 'stderr');
 
 // funkce pro kontrolu spravneho poctu argumentu instrukce

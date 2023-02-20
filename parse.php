@@ -122,8 +122,13 @@ if ($argc > 1){
     }
 }
 
-$headerok = false;  // hlavicka je validni
-$instorder = 1;     // poradi instrukce
+if ($argc > 2){
+    echo "parse.php(10): Nespravny pocet argumentu.\n";
+    exit(10);
+}
+
+$headerok = false;  // hlavicka je validni kdyz true
+$instorder = 1;     // poradi instrukce v kodu
 
 while ($line = fgets(STDIN)) {
     

@@ -75,7 +75,7 @@ function print_instruction($args, $instorder){
     
     global $instorder;
 
-    echo " <instruction order=\"".$instorder."\" opcode=\"".strtoupper($args[0])."\">\n";
+    echo " <instruction order=\"".$instorder."\" opcode=\"".$args[0]."\">\n";
     
     for ($i = 1; $i < count($args); $i++){
         
@@ -161,175 +161,211 @@ while ($line = fgets(STDIN)) {
     $line = trim($line);
     $linesplit = preg_split('/\s+/', $line);
     $linesplit[count($linesplit)-1] = rtrim($linesplit[count($linesplit)-1], "\n");
+    $linesplit[0] = strtoupper($linesplit[0]);
 
-    if (strcasecmp($linesplit[0], "move") == 0){
-        count_args($linesplit, 3);
-        check_var($linesplit[1]);
-        check_sym($linesplit[2]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "createframe") == 0){
-        count_args($linesplit, 1);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "pushframe") == 0){
-        count_args($linesplit, 1);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "popframe") == 0){
-        count_args($linesplit, 1);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "defvar") == 0){
-        count_args($linesplit, 2);
-        check_var($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "call") == 0){
-        count_args($linesplit, 2);
-        check_label($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "return") == 0){
-        count_args($linesplit, 1);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "pushs") == 0){
-        count_args($linesplit, 2);
-        check_sym($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "pops") == 0){
-        count_args($linesplit, 2);
-        check_var($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "add") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "sub") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "mul") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "idiv") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "lt") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "gt") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "eq") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "and") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "or") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "not") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "int2char") == 0){
-        count_args($linesplit, 3);
-        check_var($linesplit[1]);
-        check_sym($linesplit[2]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "stri2int") == 0){
-        check_3argsinst($linesplit);        
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "read") == 0){
-        count_args($linesplit, 3);
-        check_var($linesplit[1]);
-        check_type($linesplit[2]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "write") == 0){
-        count_args($linesplit, 2);
-        check_sym($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "concat") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "strlen") == 0){
-        count_args($linesplit, 3);
-        check_var($linesplit[1]);
-        check_sym($linesplit[2]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "getchar") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "setchar") == 0){
-        check_3argsinst($linesplit);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "type") == 0){
-        count_args($linesplit, 3);
-        check_var($linesplit[1]);
-        check_sym($linesplit[2]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "label") == 0){
-        count_args($linesplit, 2);
-        check_label($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "jump") == 0){
-        count_args($linesplit, 2);
-        check_label($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "jumpifeq") == 0){
-        count_args($linesplit, 4);
-        check_label($linesplit[1]);
-        check_sym($linesplit[2]);
-        check_sym($linesplit[3]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "jumpifneq") == 0){
-        count_args($linesplit, 4);
-        check_label($linesplit[1]);
-        check_sym($linesplit[2]);
-        check_sym($linesplit[3]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "exit") == 0){
-        count_args($linesplit, 2);
-        check_sym($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "dprint") == 0){
-        count_args($linesplit, 2);
-        check_sym($linesplit[1]);
-        print_instruction($linesplit, $instorder);
-    }
-    else if (strcasecmp($linesplit[0], "break") == 0){
-        count_args($linesplit, 1);
-        print_instruction($linesplit, $instorder);
-    }
-    else{
-        echo "ERROR: Unknown instruction.\n";
-        exit(22);
+    switch ($linesplit[0]){
+        case "MOVE":
+            count_args($linesplit, 3);
+            check_var($linesplit[1]);
+            check_sym($linesplit[2]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "CREATEFRAME":
+            count_args($linesplit, 1);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "PUSHFRAME":
+            count_args($linesplit, 1);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "POPFRAME":
+            count_args($linesplit, 1);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "DEFVAR":
+            count_args($linesplit, 2);
+            check_var($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "CALL":
+            count_args($linesplit, 2);
+            check_label($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+        
+        case "RETURN":
+            count_args($linesplit, 1);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "PUSHS":
+            count_args($linesplit, 2);
+            check_sym($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "POPS":
+            count_args($linesplit, 2);
+            check_var($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "ADD":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "SUB":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "MUL":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "IDIV":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "LT":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "GT":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "EQ":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "AND":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "OR":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+        case "NOT":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "INT2CHAR":
+            count_args($linesplit, 3);
+            check_var($linesplit[1]);
+            check_sym($linesplit[2]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "STRI2INT":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "READ":
+            count_args($linesplit, 3);
+            check_var($linesplit[1]);
+            check_type($linesplit[2]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "WRITE":
+            count_args($linesplit, 2);
+            check_sym($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "CONCAT":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "STRLEN":
+            count_args($linesplit, 3);
+            check_var($linesplit[1]);
+            check_sym($linesplit[2]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "GETCHAR":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "SETCHAR":
+            check_3argsinst($linesplit);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "TYPE":
+            count_args($linesplit, 3);
+            check_var($linesplit[1]);
+            check_sym($linesplit[2]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "LABEL":
+            count_args($linesplit, 2);
+            check_label($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "JUMP":
+            count_args($linesplit, 2);
+            check_label($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "JUMPIFEQ":
+            count_args($linesplit, 4);
+            check_label($linesplit[1]);
+            check_sym($linesplit[2]);
+            check_sym($linesplit[3]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "JUMPIFNEQ":
+            count_args($linesplit, 4);
+            check_label($linesplit[1]);
+            check_sym($linesplit[2]);
+            check_sym($linesplit[3]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "EXIT":
+            count_args($linesplit, 2);
+            check_sym($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "DPRINT":
+            count_args($linesplit, 2);
+            check_sym($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "BREAK":
+            count_args($linesplit, 1);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        default: 
+            echo "parse.php(22): neznami kod instrukce.\n";
+            exit(22);
     }
 }
 

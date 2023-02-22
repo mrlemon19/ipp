@@ -1,17 +1,19 @@
 <?php
 // ipp 2023 project: parse.php, @author: Jakub Lukas, xlukas18
-//ini_set('display_errors', 'stderr');
+ini_set('display_errors', 'stderr');
 
-// funkce pro kontrolu spravneho poctu argumentu instrukce
-function count_args($args, $count){
+// kontrola spravneho poctu argumentu instrukce
+function count_args($args, $count)
+{
     if (count($args) != $count){
         echo "parse.php(23): spatny pocet argumentu ".join(" ", $args).", ".$count." expected ".count($args)." got\n";
         exit(23);
     }
 }
 
-// funkce pro kontrolu syntakticke spravnosti promenne, symbolu, labelu a typu
-function check_var($var){
+// kontrola syntakticke spravnosti promenne, symbolu, labelu a typu
+function check_var($var)
+{
     if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $var)){
         return;
     }
@@ -21,7 +23,8 @@ function check_var($var){
     }
 }
 
-function check_sym($sym){
+function check_sym($sym)
+{
     if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $sym)){
         return;
     }
@@ -43,7 +46,8 @@ function check_sym($sym){
     }
 }
 
-function check_label($label){
+function check_label($label)
+{
     if (preg_match("/^([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $label)){
         return;
     }
@@ -53,7 +57,8 @@ function check_label($label){
     }
 }
 
-function check_type($type){
+function check_type($type)
+{
     if (preg_match("/^(int|string|bool)$/", $type)){
         return;
     }
@@ -63,56 +68,68 @@ function check_type($type){
     }
 }
 
-function check_3argsinst($args){
+function check_3argsinst($args)
+{
     count_args($args, 4);
     check_var($args[1]);
     check_sym($args[2]);
     check_sym($args[3]);
 }
 
-// funkce pro vypis xml reprezentace instrukce
-function print_instruction($args, $instorder){
-    
+// vypis xml reprezentace instrukce
+function print_instruction($args, $instorder)
+{
     global $instorder;
+    global $output;
 
-    echo " <instruction order=\"".$instorder."\" opcode=\"".$args[0]."\">\n";
-    
+    $instruction = $output->addChild("instruction");
+    $instruction->addAttribute("order", $instorder);
+    $instruction->addAttribute("opcode", $args[0]);
+
     for ($i = 1; $i < count($args); $i++){
         
         // prepsani problematickych znaku do xlm varianty
+        $args[$i] = str_replace("&", "&amp;", $args[$i]);
         $args[$i] = str_replace("<", "&lt;", $args[$i]);
         $args[$i] = str_replace(">", "&gt;", $args[$i]);
-        $args[$i] = str_replace("&", "&amp;", $args[$i]);
 
         $argsplit = explode("@", $args[$i]);
         
         if ($argsplit[0] == "GF" || $argsplit[0] == "LF" || $argsplit[0] == "TF"){
             // promena
-            echo "  <arg".($i)." type=\"var\">".$args[$i]."</arg".($i).">\n";
+            $arg = $instruction->addChild("arg".($i), $args[$i]);
+            $arg->addAttribute("type", "var");
         }
         else{
             // symbol/label/typ
             if (count($argsplit) > 1){
                 // symbol/typ
                 $position = strpos($args[$i], "@");
-                echo "  <arg".($i)." type=\"".$argsplit[0]."\">".substr($args[$i], $position + 1)."</arg".($i).">\n";
+                $arg = $instruction->addChild("arg".($i), substr($args[$i], $position + 1));
+                $arg->addAttribute("type", $argsplit[0]);
             }
             else{
-                // label
-                echo "  <arg".($i)." type=\"label\">".$args[$i]."</arg".($i).">\n";
+                // label/typ
+                if ($args[$i] == "int" || $args[$i] == "string" || $args[$i] == "bool"){
+                    $arg = $instruction->addChild("arg".($i), $args[$i]);
+                    $arg->addAttribute("type", "type");
+                }
+                else{
+                    $arg = $instruction->addChild("arg".($i), $args[$i]);
+                    $arg->addAttribute("type", "label");
+                }
             }
         }
     }
-    
-    echo " </instruction>\n";
     $instorder++;
+
 }
 
 // input handle
 if ($argc > 1){
     if ($argv[1] == "--help") {
         // help message
-        echo "parse.php\nTento skript preklada kod zapsany v IPPcode23 do XML reprezentace.\n";
+        echo "parse.php\nTento skript parsuje kod zapsany v IPPcode23 do XML reprezentace.\n";
         echo "Usage: php parse.php [--help] <inputfile\n";
         exit(0);
     }
@@ -127,11 +144,15 @@ if ($argc > 2){
     exit(10);
 }
 
+// xml
+$output = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><program language="IPPcode23"></program>');
+
 $headerok = false;  // hlavicka je validni kdyz true
 $instorder = 1;     // poradi instrukce v kodu
 
 while ($line = fgets(STDIN)) {
     
+    // parsovani radku
     // preskoceni komentare
     if (($pos = strpos($line, "#")) !== false) {
         if ($pos == 0)
@@ -152,8 +173,6 @@ while ($line = fgets(STDIN)) {
         
         if (count($headersplit) == 1 && strcasecmp($headersplit[0], ".ippcode23") == 0){
             $headerok = true;
-            echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-            echo "<program language=\"IPPcode23\">\n";
             continue;
         }
         else{
@@ -369,12 +388,17 @@ while ($line = fgets(STDIN)) {
             break;
 
         default: 
-            echo "parse.php(22): neznami kod instrukce.\n";
+            echo "parse.php(22): neznamy kod instrukce.\n";
             exit(22);
     }
 }
 
-echo "</program>\n";
+// echo "</program>\n";
+$doc = new DOMDocument("1.0");
+$doc->preserveWhiteSpace = false;
+$doc->formatOutput = true;
+$doc->loadXML($output->asXML());
+echo $doc->saveXML();
 
 exit(0);
 

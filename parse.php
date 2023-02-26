@@ -6,7 +6,7 @@ ini_set('display_errors', 'stderr');
 function count_args($args, $count)
 {
     if (count($args) != $count){
-        echo "parse.php(23): spatny pocet argumentu ".join(" ", $args).", ".$count." expected ".count($args)." got\n";
+        echo "parse.php(23): spatny pocet argumentu: ".join(" ", $args).", ".$count." expected ".count($args)." got\n";
         exit(23);
     }
 }
@@ -284,7 +284,9 @@ while ($line = fgets(STDIN)) {
             print_instruction($linesplit, $instorder);
             break;
         case "NOT":
-            check_3argsinst($linesplit);
+            count_args($linesplit, 3);
+            check_var($linesplit[1]);
+            check_sym($linesplit[2]);
             print_instruction($linesplit, $instorder);
             break;
 

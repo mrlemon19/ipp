@@ -68,14 +68,6 @@ function check_type($type)
     }
 }
 
-function check_3argsinst($args)
-{
-    count_args($args, 4);
-    check_var($args[1]);
-    check_sym($args[2]);
-    check_sym($args[3]);
-}
-
 // vypis xml reprezentace instrukce
 function print_instruction($args, $instorder)
 {
@@ -188,6 +180,39 @@ while ($line = fgets(STDIN)) {
     $linesplit[0] = strtoupper($linesplit[0]);
 
     switch ($linesplit[0]){
+        case "CREATEFRAME":
+        case "PUSHFRAME":
+        case "POPFRAME":
+        case "RETURN":
+        case "BREAK":
+                count_args($linesplit, 1);
+                print_instruction($linesplit, $instorder);
+                break;
+        
+        case "DEFVAR":
+        case "POPS":
+                count_args($linesplit, 2);
+                check_var($linesplit[1]);
+                print_instruction($linesplit, $instorder);
+                break;
+
+        case "CALL":
+        case "LABEL":
+        case "JUMP":
+            count_args($linesplit, 2);
+            check_label($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
+        case "PUSHS":
+        case "WRITE":
+        case "EXIT":
+        case "DPRINT":
+            count_args($linesplit, 2);
+            check_sym($linesplit[1]);
+            print_instruction($linesplit, $instorder);
+            break;
+
         case "MOVE":
             count_args($linesplit, 3);
             check_var($linesplit[1]);
@@ -195,110 +220,13 @@ while ($line = fgets(STDIN)) {
             print_instruction($linesplit, $instorder);
             break;
 
-        case "CREATEFRAME":
-            count_args($linesplit, 1);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "PUSHFRAME":
-            count_args($linesplit, 1);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "POPFRAME":
-            count_args($linesplit, 1);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "DEFVAR":
-            count_args($linesplit, 2);
-            check_var($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "CALL":
-            count_args($linesplit, 2);
-            check_label($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-        
-        case "RETURN":
-            count_args($linesplit, 1);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "PUSHS":
-            count_args($linesplit, 2);
-            check_sym($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "POPS":
-            count_args($linesplit, 2);
-            check_var($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "ADD":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "SUB":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "MUL":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "IDIV":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "LT":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "GT":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "EQ":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "AND":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "OR":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
         case "NOT":
-            count_args($linesplit, 3);
-            check_var($linesplit[1]);
-            check_sym($linesplit[2]);
-            print_instruction($linesplit, $instorder);
-            break;
-
         case "INT2CHAR":
+        case "STRLEN":
+        case "TYPE":
             count_args($linesplit, 3);
             check_var($linesplit[1]);
             check_sym($linesplit[2]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "STRI2INT":
-            check_3argsinst($linesplit);
             print_instruction($linesplit, $instorder);
             break;
 
@@ -309,61 +237,7 @@ while ($line = fgets(STDIN)) {
             print_instruction($linesplit, $instorder);
             break;
 
-        case "WRITE":
-            count_args($linesplit, 2);
-            check_sym($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "CONCAT":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "STRLEN":
-            count_args($linesplit, 3);
-            check_var($linesplit[1]);
-            check_sym($linesplit[2]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "GETCHAR":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "SETCHAR":
-            check_3argsinst($linesplit);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "TYPE":
-            count_args($linesplit, 3);
-            check_var($linesplit[1]);
-            check_sym($linesplit[2]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "LABEL":
-            count_args($linesplit, 2);
-            check_label($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "JUMP":
-            count_args($linesplit, 2);
-            check_label($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-
         case "JUMPIFEQ":
-            count_args($linesplit, 4);
-            check_label($linesplit[1]);
-            check_sym($linesplit[2]);
-            check_sym($linesplit[3]);
-            print_instruction($linesplit, $instorder);
-            break;
-
         case "JUMPIFNEQ":
             count_args($linesplit, 4);
             check_label($linesplit[1]);
@@ -372,20 +246,23 @@ while ($line = fgets(STDIN)) {
             print_instruction($linesplit, $instorder);
             break;
 
-        case "EXIT":
-            count_args($linesplit, 2);
-            check_sym($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "DPRINT":
-            count_args($linesplit, 2);
-            check_sym($linesplit[1]);
-            print_instruction($linesplit, $instorder);
-            break;
-
-        case "BREAK":
-            count_args($linesplit, 1);
+        case "ADD":
+        case "SUB":
+        case "MUL":
+        case "IDIV":
+        case "LT":
+        case "GT":
+        case "EQ":
+        case "AND":
+        case "OR":
+        case "STRI2INT":
+        case "CONCAT":
+        case "GETCHAR":
+        case "SETCHAR":
+            count_args($linesplit, 4);
+            check_var($linesplit[1]);
+            check_sym($linesplit[2]);
+            check_sym($linesplit[3]);
             print_instruction($linesplit, $instorder);
             break;
 

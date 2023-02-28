@@ -14,7 +14,7 @@ function count_args($args, $count)
 // kontrola syntakticke spravnosti promenne, symbolu, labelu a typu
 function check_var($var)
 {
-    if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $var)){
+    if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\\$|&|%|\*|!|\?|\d)*$/", $var)){
         return;
     }
     else{
@@ -25,7 +25,7 @@ function check_var($var)
 
 function check_sym($sym)
 {
-    if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $sym)){
+    if (preg_match("/^(GF|LF|TF)@([a-zA-Z]|_|-|\\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\\$|&|%|\*|!|\?|\d)*$/", $sym)){
         return;
     }
     else if (preg_match("/^int@([+-]?[0-9]+)$/", $sym)){
@@ -48,7 +48,7 @@ function check_sym($sym)
 
 function check_label($label)
 {
-    if (preg_match("/^([a-zA-Z]|_|-|\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\$|&|%|\*|!|\?|\d)*$/", $label)){
+    if (preg_match("/^([a-zA-Z]|_|-|\\$|&|%|\*|!|\?)([a-zA-Z]|_|-|\\$|&|%|\*|!|\?|\d)*$/", $label)){
         return;
     }
     else{
@@ -272,7 +272,6 @@ while ($line = fgets(STDIN)) {
     }
 }
 
-// echo "</program>\n";
 $doc = new DOMDocument("1.0");
 $doc->preserveWhiteSpace = false;
 $doc->formatOutput = true;

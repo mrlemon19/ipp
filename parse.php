@@ -68,7 +68,7 @@ function check_type($type)
     }
 }
 
-// vypis xml reprezentace instrukce
+// tvorba xml reprezentace instrukce
 function print_instruction($args, $instorder)
 {
     global $instorder;
@@ -122,7 +122,7 @@ if ($argc > 1){
     if ($argv[1] == "--help") {
         // help message
         echo "parse.php\nTento skript parsuje kod zapsany v IPPcode23 do XML reprezentace.\n";
-        echo "Usage: php parse.php [--help] <inputfile\n";
+        echo "Usage: php parse.php [--help] < (inputfile)\n";
         exit(0);
     }
     else{
@@ -144,7 +144,6 @@ $instorder = 1;     // poradi instrukce v kodu
 
 while ($line = fgets(STDIN)) {
     
-    // parsovani radku
     // preskoceni komentare
     if (($pos = strpos($line, "#")) !== false) {
         if ($pos == 0)
@@ -173,7 +172,7 @@ while ($line = fgets(STDIN)) {
         }
     }
 
-    // odstraneni mezer a tabulatoru
+    // parsovani radku
     $line = trim($line);
     $linesplit = preg_split('/\s+/', $line);
     $linesplit[count($linesplit)-1] = rtrim($linesplit[count($linesplit)-1], "\n");
@@ -272,6 +271,7 @@ while ($line = fgets(STDIN)) {
     }
 }
 
+// vypis xml reprezentace
 $doc = new DOMDocument("1.0");
 $doc->preserveWhiteSpace = false;
 $doc->formatOutput = true;

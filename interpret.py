@@ -1,18 +1,30 @@
+import sys
+import xml.etree.ElementTree as ET
+import argparse
+
 # interpret.py 2. cast projektu do IPP
 # @author: Jakub Lukas, xlukas18
 
-import sys
+class instruction:
+    def __init__(self, opcode, order):
+        self.name: str = opcode
+        self.order: int = order
 
 if __name__ == "__main__":
-    for i in sys.argv:
-        if i == "--help":
-            print("interpret.py")
-            print("Skript pro interpretaci XML reprezentace programu v IPPcode23.")
-            print("udage: python3 interpret.py [--help] [--source=file] [--input=file]")
-            print("     --help vypise napovedu")
-            print("     --source=file zdrojovy kod v IPPcode23")
-            print("     --input=file vstupni soubor pro program")
-            print("     alespon jeden z parametru source a input musi byt zadany")
-            print("     pri absenci jednoho z parametru je source/input nacitan ze standardniho vstupu")
-            print("\n")
-            exit(0)
+
+    # zpracovani argumentu
+    argParser = argparse.ArgumentParser()
+    argParser.add_argument('--source', help = 'source XML file in IPPcode23')
+    argParser.add_argument("--input", help = "input file")
+    args = argParser.parse_args()
+
+    sourceFile = args.source
+    inputFile = args.input
+
+    # xml parser
+    tree = ET.parse(sourceFile)
+    root = tree.getroot()
+
+    # print xml file
+    for child in root:
+        print(child.tag, child.attrib)

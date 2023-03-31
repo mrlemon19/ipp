@@ -29,144 +29,144 @@ class instruction:
 
 
 class move(instruction):
-    def __init__(self, order):
-        super().__init__("MOVE", order)
+    def __init__(self, order, args):
+        super().__init__("MOVE", order, args)
 
 class createframe(instruction):
-    def __init__(self, order):
-        super().__init__("CREATEFRAME", order)
+    def __init__(self, order, args):
+        super().__init__("CREATEFRAME", order, args)
 
 class pushframe(instruction):
-    def __init__(self, order):
-        super().__init__("PUSHFRAME", order)
+    def __init__(self, order, args):
+        super().__init__("PUSHFRAME", order, args)
 
 class popframe(instruction):
-    def __init__(self, order):
-        super().__init__("POPFRAME", order)
+    def __init__(self, order, args):
+        super().__init__("POPFRAME", order, args)
 
 class defvar(instruction):  
-    def __init__(self, order):
-        super().__init__("DEFVAR", order)
+    def __init__(self, order, args):
+        super().__init__("DEFVAR", order, args)
 
 class call(instruction):
-    def __init__(self, order):
-        super().__init__("CALL", order)
+    def __init__(self, order, args):
+        super().__init__("CALL", order, args)
 
 class return_(instruction):
-    def __init__(self, order):
-        super().__init__("RETURN", order)
+    def __init__(self, order, args):
+        super().__init__("RETURN", order, args)
 
 class pushs(instruction):   
-    def __init__(self, order):
-        super().__init__("PUSHS", order)
+    def __init__(self, order, args):
+        super().__init__("PUSHS", order, args)
 
 class pops(instruction):  
-    def __init__(self, order):
-        super().__init__("POPS", order)
+    def __init__(self, order, args):
+        super().__init__("POPS", order, args)
 
 class add(instruction):  
-    def __init__(self, order):
-        super().__init__("ADD", order)
+    def __init__(self, order, args):
+        super().__init__("ADD", order, args)
 
 class sub(instruction):  
-    def __init__(self, order):
-        super().__init__("SUB", order)
+    def __init__(self, order, args):
+        super().__init__("SUB", order, args)
 
 class mul(instruction):  
-    def __init__(self, order):
-        super().__init__("MUL", order)
+    def __init__(self, order, args):
+        super().__init__("MUL", order, args)
 
 class idiv(instruction):  
-    def __init__(self, order):
-        super().__init__("IDIV", order)
+    def __init__(self, order, args):
+        super().__init__("IDIV", order, args)
 
 class lt(instruction):
-    def __init__(self, order):
-        super().__init__("LT", order)
+    def __init__(self, order, args):
+        super().__init__("LT", order, args)
 
 class gt(instruction):
-    def __init__(self, order):
-        super().__init__("GT", order)
+    def __init__(self, order, args):
+        super().__init__("GT", order, args)
 
 class eq(instruction):
-    def __init__(self, order):
-        super().__init__("EQ", order)
+    def __init__(self, order, args):
+        super().__init__("EQ", order, args)
 
 class and_(instruction):
-    def __init__(self, order):
-        super().__init__("AND", order)
+    def __init__(self, order, args):
+        super().__init__("AND", order, args)
 
 class or_(instruction):
-    def __init__(self, order):
-        super().__init__("OR", order)
+    def __init__(self, order, args):
+        super().__init__("OR", order, args)
 
 class not_(instruction):
-    def __init__(self, order):
-        super().__init__("NOT", order)
+    def __init__(self, order, args):
+        super().__init__("NOT", order, args)
 
 class int2char(instruction):
-    def __init__(self, order):
-        super().__init__("INT2CHAR", order)
+    def __init__(self, order, args):
+        super().__init__("INT2CHAR", order, args)
 
 class stri2int(instruction):
-    def __init__(self, order):
-        super().__init__("STRI2INT", order)
+    def __init__(self, order, args):
+        super().__init__("STRI2INT", order, args)
 
 class read(instruction):
-    def __init__(self, order):
-        super().__init__("READ", order)
+    def __init__(self, order, args):
+        super().__init__("READ", order, args)
 
 class write(instruction):
-    def __init__(self, order):
-        super().__init__("WRITE", order)
+    def __init__(self, order, args):
+        super().__init__("WRITE", order, args)
 
 class concat(instruction):
-    def __init__(self, order):
-        super().__init__("CONCAT", order)
+    def __init__(self, order, args):
+        super().__init__("CONCAT", order, args)
 
 class strlen(instruction):
-    def __init__(self, order):
-        super().__init__("STRLEN", order)
+    def __init__(self, order, args):
+        super().__init__("STRLEN", order, args)
 
 class getchar(instruction):
-    def __init__(self, order):
-        super().__init__("GETCHAR", order)
+    def __init__(self, order, args):
+        super().__init__("GETCHAR", order, args)
 
 class setchar(instruction):
-    def __init__(self, order):
-        super().__init__("SETCHAR", order)
+    def __init__(self, order, args):
+        super().__init__("SETCHAR", order, args)
 
 class type_(instruction):
-    def __init__(self, order):
-        super().__init__("TYPE", order)
+    def __init__(self, order, args):
+        super().__init__("TYPE", order, args)
 
 class label(instruction):
-    def __init__(self, order):
-        super().__init__("LABEL", order)
+    def __init__(self, order, args):
+        super().__init__("LABEL", order, args)
 
 class jump(instruction):
-    def __init__(self, order):
-        super().__init__("JUMP", order)
+    def __init__(self, order, args):
+        super().__init__("JUMP", order, args)
 
 class jumpifeq(instruction):
-    def __init__(self, order):
-        super().__init__("JUMPIFEQ", order)
+    def __init__(self, order, args):
+        super().__init__("JUMPIFEQ", order, args)
 
 class jumpifneq(instruction):
-    def __init__(self, order):
-        super().__init__("JUMPIFNEQ", order)
+    def __init__(self, order, args):
+        super().__init__("JUMPIFNEQ", order, args)
 
 class exit_(instruction):
-    def __init__(self, order):
-        super().__init__("EXIT", order)
+    def __init__(self, order, args):
+        super().__init__("EXIT", order, args)
 
 class dprint(instruction):
-    def __init__(self, order):
-        super().__init__("DPRINT", order)
+    def __init__(self, order, args):
+        super().__init__("DPRINT", order, args)
 
 class break_(instruction):
-    def __init__(self, order):
-        super().__init__("BREAK", order)
+    def __init__(self, order, args):
+        super().__init__("BREAK", order, args)
 
 # tovarna na instrukce
 class instrucionFactory:
@@ -175,73 +175,73 @@ class instrucionFactory:
         if opcode == "MOVE":
             return move(order, args)
         elif opcode == "CREATEFRAME":
-            return createframe(order)
+            return createframe(order, args)
         elif opcode == "PUSHFRAME":
-            return pushframe(order)
+            return pushframe(order, args)
         elif opcode == "POPFRAME":
-            return popframe(order)
+            return popframe(order, args)
         elif opcode == "DEFVAR":
-            return defvar(order)
+            return defvar(order, args)
         elif opcode == "CALL":
-            return call(order)
+            return call(order, args)
         elif opcode == "RETURN":
-            return return_(order)
+            return return_(order, args)
         elif opcode == "PUSHS":
-            return pushs(order)
+            return pushs(order, args)
         elif opcode == "POPS":
-            return pops(order)
+            return pops(order, args)
         elif opcode == "ADD":
-            return add(order)
+            return add(order, args)
         elif opcode == "SUB":
-            return sub(order)
+            return sub(order, args)
         elif opcode == "MUL":
-            return mul(order)
+            return mul(order, args)
         elif opcode == "IDIV":
-            return idiv(order)
+            return idiv(order, args)
         elif opcode == "LT":
-            return lt(order)
+            return lt(order, args)
         elif opcode == "GT":
-            return gt(order)
+            return gt(order, args)
         elif opcode == "EQ":
-            return eq(order)
+            return eq(order, args)
         elif opcode == "AND":
-            return and_(order)
+            return and_(order, args)
         elif opcode == "OR":
-            return or_(order)
+            return or_(order, args)
         elif opcode == "NOT":
-            return not_(order)
+            return not_(order, args)
         elif opcode == "INT2CHAR":
-            return int2char(order)
+            return int2char(order, args)
         elif opcode == "STRI2INT":
-            return stri2int(order)
+            return stri2int(order, args)
         elif opcode == "READ":
-            return read(order)
+            return read(order, args)
         elif opcode == "WRITE":
-            return write(order)
+            return write(order, args)
         elif opcode == "CONCAT":
-            return concat(order)
+            return concat(order, args)
         elif opcode == "STRLEN":
-            return strlen(order)
+            return strlen(order, args)
         elif opcode == "GETCHAR":
-            return getchar(order)
+            return getchar(order, args)
         elif opcode == "SETCHAR":
-            return setchar(order)
+            return setchar(order, args)
         elif opcode == "TYPE":
-            return type_(order)
+            return type_(order, args)
         elif opcode == "LABEL":
-            return label(order)
+            return label(order, args)
         elif opcode == "JUMP":
-            return jump(order)
+            return jump(order, args)
         elif opcode == "JUMPIFEQ":
-            return jumpifeq(order)
+            return jumpifeq(order, args)
         elif opcode == "JUMPIFNEQ":
-            return jumpifneq(order)
+            return jumpifneq(order, args)
         elif opcode == "EXIT":
-            return exit_(order)
+            return exit_(order, args)
         elif opcode == "DPRINT":
-            return dprint(order)
+            return dprint(order, args)
         elif opcode == "BREAK":
-            return break_(order)
+            return break_(order, args)
         else:
             raise Exception("Unknown instruction")
 

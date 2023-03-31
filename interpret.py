@@ -9,9 +9,10 @@ import argparse
 
 class instruction:
     _instList = []
-    def __init__(self, opcode, order):
+    def __init__(self, opcode, order, args):
         self._name: str = opcode
         self._order: int = order
+        self._args: list = args
         self._instList.append(self)
 
     def getInstList(self):
@@ -22,6 +23,9 @@ class instruction:
     
     def getOrder(self):
         return self._order
+
+    def getArgs(self):
+        return self._args
 
 
 class move(instruction):
@@ -167,9 +171,9 @@ class break_(instruction):
 # tovarna na instrukce
 class instrucionFactory:
     @classmethod
-    def createInstruction(cls, opcode, order):
+    def createInstruction(cls, opcode, order, args):
         if opcode == "MOVE":
-            return move(order)
+            return move(order, args)
         elif opcode == "CREATEFRAME":
             return createframe(order)
         elif opcode == "PUSHFRAME":
@@ -245,16 +249,28 @@ if __name__ == "__main__":
 
     # zpracovani argumentu
     argParser = argparse.ArgumentParser()
-    argParser.add_argument('--source', help = 'source XML file in IPPcode23')
-    argParser.add_argument("--input", help = "input file")
+    argParser.add_argument("--source", help = "source XML file in IPPcode23")
+    #argParser.add_argument("--input", help = "input file")
     args = argParser.parse_args()
 
+    # TODO stdin kdyz nejsou zadany argumenty
     sourceFile = args.source
-    inputFile = args.input
+    #inputFile = args.input
 
     # xml parser
-    tree = ET.parse(sourceFile)
-    root = tree.getroot()
-
+    try:
+        tree = ET.parse(sourceFile)
+        root = tree.getroot()
+    except ET.ParseError as e:
+        sys.stderr.write("Error: XML parse error: ", e)
+        sys.exit(31)
+    
+    for i in root:
+        print(i.tag, i.attrib)
+        args = []
+        for j in i:
+            args.append(j)
+            
+        i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
     #TODO kontrola spravnosti xml
     

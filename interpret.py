@@ -6,9 +6,11 @@ import sys
 import xml.etree.ElementTree as ET
 import argparse
 
-
+# instrucrion class
 class instruction:
     _instList = []
+    _gfVarDic = {}
+    _labelDic = {}
     def __init__(self, opcode, order, args):
         self._name: str = opcode
         self._order: int = order
@@ -27,7 +29,37 @@ class instruction:
     def getArgs(self):
         return self._args
 
+    def getGfVarList(self):
+        return self._gfVarDic
+    
+    def addGfVar(self, var):
+        self._gfVarDic.update({var: None})
 
+    def getGfVar(self, var):
+        try:
+            return self._gfVarDic[var]
+        except KeyError:
+            sys.stderr.write("Variable " + var + " not defined")
+            sys.exit(54)
+
+    def setGfVar(self, var, type_, value):
+        try:
+            self._gfVarDic[var] = (type_, value)
+        except KeyError:
+            sys.stderr.write("Variable " + var + " not defined")
+            sys.exit(54)
+
+    def getLabelList(self):
+        return self._labelDic
+
+    def addLabel(self, label):
+        self._labelDic.update({label: self._order})
+
+    def getLabelPos(self, label):
+        return self._labelDic[label]
+
+
+# classy pro konkretni instrukce
 class move(instruction):
     def __init__(self, order, args):
         super().__init__("MOVE", order, args)
@@ -47,6 +79,24 @@ class popframe(instruction):
 class defvar(instruction):  
     def __init__(self, order, args):
         super().__init__("DEFVAR", order, args)
+
+    def execute(self):
+        arg = super().getArgs()[0]
+        var = arg.text
+        varSplit = var.split("@")
+        if varSplit[0] == "GF":
+            super().addGfVar(varSplit[1])
+        elif varSplit[0] == "LF":
+            print("LF frame not implemented yet")
+            exit(99)
+        elif varSplit[0] == "TF":
+            print("TF frame not implemented yet")
+            exit(99)
+        else:
+            # canot happen
+            sys.stderr.write("error: unknown frame")
+            sys.exit(99)
+        
 
 class call(instruction):
     def __init__(self, order, args):
@@ -143,6 +193,12 @@ class type_(instruction):
 class label(instruction):
     def __init__(self, order, args):
         super().__init__("LABEL", order, args)
+
+    def execute(self):
+        arg = super().getArgs()[0]
+        label = arg.text
+        print("label: " + label)
+        super().addLabel(label)
 
 class jump(instruction):
     def __init__(self, order, args):
@@ -265,6 +321,9 @@ if __name__ == "__main__":
         sys.stderr.write("Error: XML parse error: ", e)
         sys.exit(31)
     
+    #TODO kontrola spravnosti xml
+
+    # parsovani instrukci
     for i in root:
         print(i.tag, i.attrib)
         args = []
@@ -272,5 +331,7 @@ if __name__ == "__main__":
             args.append(j)
             
         i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
-    #TODO kontrola spravnosti xml
-    
+        i1.execute()
+
+    print(i1.getGfVarList())
+    print(i1.getLabelList())

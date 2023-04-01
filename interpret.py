@@ -9,13 +9,18 @@ import argparse
 # instrucrion class
 class instruction:
     _instList = []
+    _stack = []
     _gfVarDic = {}
     _labelDic = {}
     def __init__(self, opcode, order, args):
         self._name: str = opcode
         self._order: int = order
-        self._args: list = args
         self._instList.append(self)
+        self._args = []
+
+        for i in args:
+            arg = (i.attrib["type"], i.text)
+            self._args.append(arg)
 
     def getInstList(self):
         return self._instList
@@ -26,12 +31,65 @@ class instruction:
     def getOrder(self):
         return self._order
 
+    # returns touple (type, value)
     def getArgs(self):
         return self._args
 
+    # variable
     def getGfVarList(self):
         return self._gfVarDic
     
+    # gets touple (type, value) and if it exists, returns its value
+    def getVarValue(self, var):
+        try:
+            varSplit = var.split("@")
+            if varSplit[0] == "GF":
+                return self.getGfVar(varSplit[1])
+            elif varSplit[0] == "LF":
+                print("LF frame not implemented yet")
+                exit(99)
+            elif varSplit[0] == "TF":
+                print("TF frame not implemented yet")
+                exit(99)
+            else:
+                # canot happen
+                sys.stderr.write("error: unknown frame")
+                sys.exit(99)
+        except KeyError:
+            sys.stderr.write("Variable " + var + " not defined")
+            sys.exit(54)
+
+    # gets touple (type, value) and stores it into GF, LF, TF variable dictionary
+    def addVar(self, var):
+        varSplit = var.split("@")
+        if varSplit[0] == "GF":
+            self.addGfVar(varSplit[1])
+        elif varSplit[0] == "LF":
+            print("LF frame not implemented yet")
+            exit(99)
+        elif varSplit[0] == "TF":
+            print("TF frame not implemented yet")
+            exit(99)
+        else:
+            # canot happen
+            sys.stderr.write("error: unknown frame")
+            sys.exit(99)
+
+    def addVarValue(self, var, type_, value):
+        varSplit = var.split("@")
+        if varSplit[0] == "GF":
+            self.setGfVar(varSplit[1], type_, value)
+        elif varSplit[0] == "LF":
+            print("LF frame not implemented yet")
+            exit(99)
+        elif varSplit[0] == "TF":
+            print("TF frame not implemented yet")
+            exit(99)
+        else:
+            # canot happen
+            sys.stderr.write("error: unknown frame")
+            sys.exit(99)
+
     def addGfVar(self, var):
         self._gfVarDic.update({var: None})
 
@@ -49,6 +107,7 @@ class instruction:
             sys.stderr.write("Variable " + var + " not defined")
             sys.exit(54)
 
+    # label
     def getLabelList(self):
         return self._labelDic
 
@@ -58,6 +117,19 @@ class instruction:
     def getLabelPos(self, label):
         return self._labelDic[label]
 
+    # stack
+    def pushStack(self, symbol):
+        self._stack.append(symbol)
+
+    def popStack(self):
+        if self.stackEmpty():
+            sys.stderr.write("error(56): pops from empty stack but stack is empty")
+            sys.exit(56)
+        
+        return self._stack.pop()
+    
+    def stackEmpty(self):
+        return len(self._stack) == 0
 
 # classy pro konkretni instrukce
 class move(instruction):
@@ -82,20 +154,7 @@ class defvar(instruction):
 
     def execute(self):
         arg = super().getArgs()[0]
-        var = arg.text
-        varSplit = var.split("@")
-        if varSplit[0] == "GF":
-            super().addGfVar(varSplit[1])
-        elif varSplit[0] == "LF":
-            print("LF frame not implemented yet")
-            exit(99)
-        elif varSplit[0] == "TF":
-            print("TF frame not implemented yet")
-            exit(99)
-        else:
-            # canot happen
-            sys.stderr.write("error: unknown frame")
-            sys.exit(99)
+        super().addVar(arg[1])
         
 
 class call(instruction):
@@ -110,9 +169,26 @@ class pushs(instruction):
     def __init__(self, order, args):
         super().__init__("PUSHS", order, args)
 
+    def execute(self):
+        arg = super().getArgs()[0]
+        type_ = arg[0]
+        value = arg[1]
+        
+        if type_ == "var":
+            var = super().getVarValue(value)
+            super().pushStack(var)
+        else:
+            super().pushStack((type_, value))
+
 class pops(instruction):  
     def __init__(self, order, args):
         super().__init__("POPS", order, args)
+
+    def execute(self):
+        arg = super().getArgs()[0]
+        var = arg[1]
+        symbol = super().popStack()
+        super().addVarValue(var, symbol[0], symbol[1])
 
 class add(instruction):  
     def __init__(self, order, args):
@@ -196,8 +272,7 @@ class label(instruction):
 
     def execute(self):
         arg = super().getArgs()[0]
-        label = arg.text
-        print("label: " + label)
+        label = arg[1]
         super().addLabel(label)
 
 class jump(instruction):

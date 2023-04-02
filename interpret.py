@@ -385,9 +385,44 @@ class write(instruction):
     def __init__(self, order, args):
         super().__init__("WRITE", order, args)
 
+    def execute(self):
+        symb = super().getArgs()[0]
+
+        if symb[0] == "var":
+            symb = super().getVarValue(symb[1])
+
+        if symb[0] == "int":
+            print(symb[1], end="")
+        elif symb[0] == "bool":
+            print(symb[1].lower(), end="")
+        elif symb[0] == "string":
+            print(symb[1], end="")
+        elif symb[0] == "nil":
+            print("", end="")
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class concat(instruction):
     def __init__(self, order, args):
         super().__init__("CONCAT", order, args)
+
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == "string" and symb2[0] == "string":
+            super().setVarValue(var[1], "string", symb1[1] + symb2[1])
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
 
 class strlen(instruction):
     def __init__(self, order, args):

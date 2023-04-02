@@ -191,6 +191,7 @@ class pushs(instruction):
         else:
             super().pushStack((type_, value))
 
+
 class pops(instruction):  
     def __init__(self, order, args):
         super().__init__("POPS", order, args)
@@ -200,6 +201,7 @@ class pops(instruction):
         var = arg[1]
         symbol = super().popStack()
         super().setVarValue(var, symbol[0], symbol[1])
+
 
 class add(instruction):  
     def __init__(self, order, args):
@@ -244,13 +246,52 @@ class sub(instruction):
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
 
+
 class mul(instruction):  
     def __init__(self, order, args):
         super().__init__("MUL", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == "int" and symb2[0] == "int":
+            super().setVarValue(var[1], "int", int(symb1[1]) * int(symb2[1]))
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
+
 class idiv(instruction):  
     def __init__(self, order, args):
         super().__init__("IDIV", order, args)
+
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == "int" and symb2[0] == "int":
+            if symb2[1] == "0":
+                sys.stderr.write("error(57): division by zero")
+                sys.exit(57)
+            super().setVarValue(var[1], "int", int(symb1[1]) // int(symb2[1]))
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
 
 class lt(instruction):
     def __init__(self, order, args):

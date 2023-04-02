@@ -75,7 +75,7 @@ class instruction:
             sys.stderr.write("error: unknown frame")
             sys.exit(99)
 
-    def addVarValue(self, var, type_, value):
+    def setVarValue(self, var, type_, value):
         varSplit = var.split("@")
         if varSplit[0] == "GF":
             self.setGfVar(varSplit[1], type_, value)
@@ -133,8 +133,19 @@ class instruction:
 
 # classy pro konkretni instrukce
 class move(instruction):
+    # move <var> <symb>, prenese hodnotu symb do var
     def __init__(self, order, args):
         super().__init__("MOVE", order, args)
+
+    def execute(self):
+        var = super().getArgs()[0]
+        symb = super().getArgs()[1]
+        
+        if symb[0] == "var":
+            symb = super().getVarValue(symb[1])
+
+        super().setVarValue(var[1], symb[0], symb[1])
+
 
 class createframe(instruction):
     def __init__(self, order, args):
@@ -188,7 +199,7 @@ class pops(instruction):
         arg = super().getArgs()[0]
         var = arg[1]
         symbol = super().popStack()
-        super().addVarValue(var, symbol[0], symbol[1])
+        super().setVarValue(var, symbol[0], symbol[1])
 
 class add(instruction):  
     def __init__(self, order, args):

@@ -309,13 +309,65 @@ class and_(instruction):
     def __init__(self, order, args):
         super().__init__("AND", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == "bool" and symb2[0] == "bool":
+            boolsym1 = False if symb1[1].lower() == "false" else True
+            boolsym2 = False if symb2[1].lower() == "false" else True
+            super().setVarValue(var[1], "bool", boolsym1 and boolsym2)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class or_(instruction):
     def __init__(self, order, args):
         super().__init__("OR", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == "bool" and symb2[0] == "bool":
+            boolsym1 = False if symb1[1].lower() == "false" else True
+            boolsym2 = False if symb2[1].lower() == "false" else True
+            super().setVarValue(var[1], "bool", boolsym1 or boolsym2)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class not_(instruction):
     def __init__(self, order, args):
         super().__init__("NOT", order, args)
+
+    def execute(self):
+        var = super().getArgs()[0]
+        symb = super().getArgs()[1]
+
+        if symb[0] == "var":
+            symb = super().getVarValue(symb[1])
+
+        if symb[0] == "bool":
+            boolsym = False if symb[1].lower() == "false" else True
+            super().setVarValue(var[1], "bool", not boolsym)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
 
 class int2char(instruction):
     def __init__(self, order, args):

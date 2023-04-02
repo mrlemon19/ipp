@@ -131,6 +131,7 @@ class instruction:
     def stackEmpty(self):
         return len(self._stack) == 0
 
+
 # classy pro konkretni instrukce
 class move(instruction):
     # move <var> <symb>, prenese hodnotu symb do var
@@ -297,13 +298,67 @@ class lt(instruction):
     def __init__(self, order, args):
         super().__init__("LT", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == symb2[0] and symb1[0] != "nil":
+            super().setVarValue(var[1], "bool", symb1[1] < symb2[1])
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class gt(instruction):
     def __init__(self, order, args):
         super().__init__("GT", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == symb2[0] and symb1[0] != "nil":
+            super().setVarValue(var[1], "bool", symb1[1] > symb2[1])
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class eq(instruction):
     def __init__(self, order, args):
         super().__init__("EQ", order, args)
+
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == symb2[0]:
+            if symb1[1] == symb2[1]:
+                super().setVarValue(var[1], "bool", True)
+            else:
+                super().setVarValue(var[1], "bool", False)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
 
 class and_(instruction):
     def __init__(self, order, args):
@@ -390,12 +445,9 @@ class write(instruction):
 
         if symb[0] == "var":
             symb = super().getVarValue(symb[1])
-
-        if symb[0] == "int":
+        if symb[0] == "int" or symb[0] == "string":
             print(symb[1], end="")
         elif symb[0] == "bool":
-            print(symb[1].lower(), end="")
-        elif symb[0] == "string":
             print(symb[1], end="")
         elif symb[0] == "nil":
             print("", end="")
@@ -408,6 +460,7 @@ class concat(instruction):
         super().__init__("CONCAT", order, args)
 
     def execute(self):
+        # TODO escape sequences
         var = super().getArgs()[0]
         symb1 = super().getArgs()[1]
         symb2 = super().getArgs()[2]
@@ -419,6 +472,10 @@ class concat(instruction):
             symb2 = super().getVarValue(symb2[1])
 
         if symb1[0] == "string" and symb2[0] == "string":
+            # debug print
+            print("sym1:", symb1[1])
+            print("sym2:", symb2[1])
+            print("concat:", symb1[1] + symb2[1])
             super().setVarValue(var[1], "string", symb1[1] + symb2[1])
         else:
             sys.stderr.write("error(53): wrong type of operands")
@@ -582,5 +639,6 @@ if __name__ == "__main__":
         i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
         i1.execute()
 
+    # debug print
     print(i1.getGfVarList())
-    print(i1.getLabelList())
+    #print(i1.getLabelList())

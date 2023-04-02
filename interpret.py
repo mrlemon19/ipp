@@ -428,9 +428,47 @@ class int2char(instruction):
     def __init__(self, order, args):
         super().__init__("INT2CHAR", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        symb = super().getArgs()[1]
+
+        if symb[0] == "var":
+            symb = super().getVarValue(symb[1])
+
+        if symb[0] == "int":
+            try:
+                super().setVarValue(var[1], "string", chr(int(symb[1])))
+            except ValueError:
+                sys.stderr.write("error(58): wrong value of operand")
+                sys.exit(58)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class stri2int(instruction):
     def __init__(self, order, args):
         super().__init__("STRI2INT", order, args)
+
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == "string" and symb2[0] == "int":
+            try:
+                super().setVarValue(var[1], "int", ord(symb1[1][int(symb2[1])]))
+            except IndexError:
+                sys.stderr.write("error(58): wrong value of operand")
+                sys.exit(58)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
 
 class read(instruction):
     def __init__(self, order, args):

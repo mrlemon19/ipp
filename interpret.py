@@ -526,14 +526,71 @@ class strlen(instruction):
 class getchar(instruction):
     def __init__(self, order, args):
         super().__init__("GETCHAR", order, args)
+        
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == "string" and symb2[0] == "int":
+            try:
+                super().setVarValue(var[1], "string", symb1[1][int(symb2[1])])
+            except IndexError:
+                sys.stderr.write("error(58): wrong value of operand")
+                sys.exit(58)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
 
 class setchar(instruction):
     def __init__(self, order, args):
         super().__init__("SETCHAR", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        varVal = super().getVarValue(var[1])
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if varVal[0] == "string" and symb1[0] == "int" and symb2[0] == "string":
+            try:
+                newString = varVal[1][:int(symb1[1])] + symb2[1][0] + varVal[1][int(symb1[1]) + 1:]
+                super().setVarValue(var[1], "string", newString)
+            except IndexError:
+                sys.stderr.write("error(58): wrong value of operand")
+                sys.exit(58)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class type_(instruction):
     def __init__(self, order, args):
         super().__init__("TYPE", order, args)
+
+    def execute(self):
+        var = super().getArgs()[0]
+        symb = super().getArgs()[1]
+
+        if symb[0] == "var":
+            symb = super().getVarValue(symb[1])
+
+        if symb is None:
+            super().setVarValue(var[1], "string", "")
+        else:
+            super().setVarValue(var[1], "string", symb[0])
 
 class label(instruction):
     def __init__(self, order, args):

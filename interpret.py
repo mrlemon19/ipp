@@ -12,6 +12,7 @@ class instruction:
     _stack = []
     _gfVarDic = {}
     _labelDic = {}
+    _programCounter = 0
     def __init__(self, opcode, order, args):
         self._name: str = opcode
         self._order: int = order
@@ -116,6 +117,13 @@ class instruction:
 
     def getLabelPos(self, label):
         return self._labelDic[label]
+    
+    # program counter
+    def getPC(self):
+        return self._programCounter
+    
+    def setPC(self, value):
+        self._programCounter = value
 
     # stack
     def pushStack(self, symbol):
@@ -817,6 +825,10 @@ if __name__ == "__main__":
             
         i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
         i1.execute()
+        order = super(type(i1), i1).getOrder()
+        super(type(i1), i1).setPC(order)
+        print(super(type(i1), i1).getPC())
+    
 
     # debug print
     print(i1.getGfVarList())

@@ -523,6 +523,19 @@ class strlen(instruction):
     def __init__(self, order, args):
         super().__init__("STRLEN", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        symb = super().getArgs()[1]
+
+        if symb[0] == "var":
+            symb = super().getVarValue(symb[1])
+
+        if symb[0] == "string":
+            super().setVarValue(var[1], "int", len(symb[1]))
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class getchar(instruction):
     def __init__(self, order, args):
         super().__init__("GETCHAR", order, args)

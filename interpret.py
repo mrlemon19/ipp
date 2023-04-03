@@ -1,5 +1,5 @@
 # interpret.py 2. cast projektu do IPP
-# interpretuje XML reprezentaci programu v IPPcode20 a generuje vystup
+# interpretuje XML reprezentaci programu v IPPcode23 a generuje vystup
 # @author: Jakub Lukas, xlukas18
 
 import sys
@@ -486,7 +486,7 @@ class write(instruction):
         if symb[0] == "int" or symb[0] == "string":
             print(symb[1], end="")
         elif symb[0] == "bool":
-            print(symb[1], end="")
+            print(str(symb[1].lower()), end="")
         elif symb[0] == "nil":
             print("", end="")
         else:
@@ -617,9 +617,39 @@ class exit_(instruction):
     def __init__(self, order, args):
         super().__init__("EXIT", order, args)
 
+    def execute(self):
+        symb = super().getArgs()[0]
+
+        if symb[0] == "var":
+            symb = super().getVarValue(symb[1])
+        if symb[0] == "int":
+            if int(symb[1]) >= 0 and int(symb[1]) <= 49:
+                sys.exit(int(symb[1]))
+            else:
+                sys.stderr.write("error(57): wrong value of operand")
+                sys.exit(57)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class dprint(instruction):
     def __init__(self, order, args):
         super().__init__("DPRINT", order, args)
+
+    def execute(self):
+        symb = super().getArgs()[0]
+
+        if symb[0] == "var":
+            symb = super().getVarValue(symb[1])
+        if symb[0] == "int" or symb[0] == "string":
+            sys.stderr.write(symb[1], end="")
+        elif symb[0] == "bool":
+            sys.stderr.write(str(symb[1]).lower(), end="")
+        elif symb[0] == "nil":
+            sys.stderr.write("", end="")
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
 
 class break_(instruction):
     def __init__(self, order, args):

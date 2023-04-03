@@ -13,10 +13,10 @@ class instruction:
     _gfVarDic = {}
     _labelDic = {}
     _programCounter = 0
-    def __init__(self, opcode, order, args):
+    def __init__(self, opcode, order, args, inst):
         self._name: str = opcode
         self._order: int = order
-        self._instList.append(self)
+        self._instList.append(inst) # inst is instruction object (move, createframe, ...)
         self._args = []
 
         for i in args:
@@ -144,7 +144,7 @@ class instruction:
 class move(instruction):
     # move <var> <symb>, prenese hodnotu symb do var
     def __init__(self, order, args):
-        super().__init__("MOVE", order, args)
+        super().__init__("MOVE", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -158,19 +158,19 @@ class move(instruction):
 
 class createframe(instruction):
     def __init__(self, order, args):
-        super().__init__("CREATEFRAME", order, args)
+        super().__init__("CREATEFRAME", order, args, self)
 
 class pushframe(instruction):
     def __init__(self, order, args):
-        super().__init__("PUSHFRAME", order, args)
+        super().__init__("PUSHFRAME", order, args, self)
 
 class popframe(instruction):
     def __init__(self, order, args):
-        super().__init__("POPFRAME", order, args)
+        super().__init__("POPFRAME", order, args, self)
 
-class defvar(instruction):  
+class defvar(instruction):
     def __init__(self, order, args):
-        super().__init__("DEFVAR", order, args)
+        super().__init__("DEFVAR", order, args, self)
 
     def execute(self):
         arg = super().getArgs()[0]
@@ -179,15 +179,15 @@ class defvar(instruction):
 
 class call(instruction):
     def __init__(self, order, args):
-        super().__init__("CALL", order, args)
+        super().__init__("CALL", order, args, self)
 
 class return_(instruction):
     def __init__(self, order, args):
-        super().__init__("RETURN", order, args)
+        super().__init__("RETURN", order, args, self)
 
 class pushs(instruction):   
     def __init__(self, order, args):
-        super().__init__("PUSHS", order, args)
+        super().__init__("PUSHS", order, args, self)
 
     def execute(self):
         arg = super().getArgs()[0]
@@ -203,7 +203,7 @@ class pushs(instruction):
 
 class pops(instruction):  
     def __init__(self, order, args):
-        super().__init__("POPS", order, args)
+        super().__init__("POPS", order, args, self)
 
     def execute(self):
         arg = super().getArgs()[0]
@@ -214,7 +214,7 @@ class pops(instruction):
 
 class add(instruction):  
     def __init__(self, order, args):
-        super().__init__("ADD", order, args)
+        super().__init__("ADD", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -236,7 +236,7 @@ class add(instruction):
 
 class sub(instruction):  
     def __init__(self, order, args):
-        super().__init__("SUB", order, args)
+        super().__init__("SUB", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -258,7 +258,7 @@ class sub(instruction):
 
 class mul(instruction):  
     def __init__(self, order, args):
-        super().__init__("MUL", order, args)
+        super().__init__("MUL", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -280,7 +280,7 @@ class mul(instruction):
 
 class idiv(instruction):  
     def __init__(self, order, args):
-        super().__init__("IDIV", order, args)
+        super().__init__("IDIV", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -304,7 +304,7 @@ class idiv(instruction):
 
 class lt(instruction):
     def __init__(self, order, args):
-        super().__init__("LT", order, args)
+        super().__init__("LT", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -325,7 +325,7 @@ class lt(instruction):
 
 class gt(instruction):
     def __init__(self, order, args):
-        super().__init__("GT", order, args)
+        super().__init__("GT", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -346,7 +346,7 @@ class gt(instruction):
 
 class eq(instruction):
     def __init__(self, order, args):
-        super().__init__("EQ", order, args)
+        super().__init__("EQ", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -370,7 +370,7 @@ class eq(instruction):
 
 class and_(instruction):
     def __init__(self, order, args):
-        super().__init__("AND", order, args)
+        super().__init__("AND", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -393,7 +393,7 @@ class and_(instruction):
 
 class or_(instruction):
     def __init__(self, order, args):
-        super().__init__("OR", order, args)
+        super().__init__("OR", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -416,7 +416,7 @@ class or_(instruction):
 
 class not_(instruction):
     def __init__(self, order, args):
-        super().__init__("NOT", order, args)
+        super().__init__("NOT", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -434,7 +434,7 @@ class not_(instruction):
 
 class int2char(instruction):
     def __init__(self, order, args):
-        super().__init__("INT2CHAR", order, args)
+        super().__init__("INT2CHAR", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -455,7 +455,7 @@ class int2char(instruction):
 
 class stri2int(instruction):
     def __init__(self, order, args):
-        super().__init__("STRI2INT", order, args)
+        super().__init__("STRI2INT", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -480,7 +480,7 @@ class stri2int(instruction):
 
 class read(instruction):
     def __init__(self, order, args):
-        super().__init__("READ", order, args)
+        super().__init__("READ", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -514,7 +514,7 @@ class read(instruction):
 
 class write(instruction):
     def __init__(self, order, args):
-        super().__init__("WRITE", order, args)
+        super().__init__("WRITE", order, args, self)
 
     def execute(self):
         symb = super().getArgs()[0]
@@ -533,7 +533,7 @@ class write(instruction):
 
 class concat(instruction):
     def __init__(self, order, args):
-        super().__init__("CONCAT", order, args)
+        super().__init__("CONCAT", order, args, self)
 
     def execute(self):
         # TODO escape sequences
@@ -559,7 +559,7 @@ class concat(instruction):
 
 class strlen(instruction):
     def __init__(self, order, args):
-        super().__init__("STRLEN", order, args)
+        super().__init__("STRLEN", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -576,7 +576,7 @@ class strlen(instruction):
 
 class getchar(instruction):
     def __init__(self, order, args):
-        super().__init__("GETCHAR", order, args)
+        super().__init__("GETCHAR", order, args, self)
         
     def execute(self):
         var = super().getArgs()[0]
@@ -601,7 +601,7 @@ class getchar(instruction):
 
 class setchar(instruction):
     def __init__(self, order, args):
-        super().__init__("SETCHAR", order, args)
+        super().__init__("SETCHAR", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -629,7 +629,7 @@ class setchar(instruction):
 
 class type_(instruction):
     def __init__(self, order, args):
-        super().__init__("TYPE", order, args)
+        super().__init__("TYPE", order, args, self)
 
     def execute(self):
         var = super().getArgs()[0]
@@ -645,7 +645,7 @@ class type_(instruction):
 
 class label(instruction):
     def __init__(self, order, args):
-        super().__init__("LABEL", order, args)
+        super().__init__("LABEL", order, args, self)
 
     def execute(self):
         arg = super().getArgs()[0]
@@ -654,19 +654,19 @@ class label(instruction):
 
 class jump(instruction):
     def __init__(self, order, args):
-        super().__init__("JUMP", order, args)
+        super().__init__("JUMP", order, args, self)
 
 class jumpifeq(instruction):
     def __init__(self, order, args):
-        super().__init__("JUMPIFEQ", order, args)
+        super().__init__("JUMPIFEQ", order, args, self)
 
 class jumpifneq(instruction):
     def __init__(self, order, args):
-        super().__init__("JUMPIFNEQ", order, args)
+        super().__init__("JUMPIFNEQ", order, args, self)
 
 class exit_(instruction):
     def __init__(self, order, args):
-        super().__init__("EXIT", order, args)
+        super().__init__("EXIT", order, args, self)
 
     def execute(self):
         symb = super().getArgs()[0]
@@ -685,7 +685,7 @@ class exit_(instruction):
 
 class dprint(instruction):
     def __init__(self, order, args):
-        super().__init__("DPRINT", order, args)
+        super().__init__("DPRINT", order, args, self)
 
     def execute(self):
         symb = super().getArgs()[0]
@@ -704,7 +704,7 @@ class dprint(instruction):
 
 class break_(instruction):
     def __init__(self, order, args):
-        super().__init__("BREAK", order, args)
+        super().__init__("BREAK", order, args, self)
 
 # tovarna na instrukce
 class instrucionFactory:
@@ -824,10 +824,14 @@ if __name__ == "__main__":
             args.append(j)
             
         i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
-        i1.execute()
-        order = super(type(i1), i1).getOrder()
-        super(type(i1), i1).setPC(order)
-        print(super(type(i1), i1).getPC())
+        #i1.execute()
+    
+    instList = super(type(i1), i1).getInstList()
+    
+    for i in instList:
+        i.execute()
+
+    print(instList)
     
 
     # debug print

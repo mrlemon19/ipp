@@ -474,6 +474,36 @@ class read(instruction):
     def __init__(self, order, args):
         super().__init__("READ", order, args)
 
+    def execute(self):
+        var = super().getArgs()[0]
+        type_ = super().getArgs()[1]
+
+        try:
+            value = input()
+        except EOFError:
+            value = ""
+            type_ = "nil"
+
+        if type_ == "int":
+            try:
+                value = int(value)
+            except ValueError:
+                value = ""
+                type_ = "nil"
+
+        elif type_ == "bool":
+            if value.lower() == "true":
+                value = True
+            else:
+                value = False
+        elif type_ == "string":
+            value = str(value)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
+        super().setVarValue(var[1], type_, value)
+
 class write(instruction):
     def __init__(self, order, args):
         super().__init__("WRITE", order, args)
@@ -750,12 +780,23 @@ if __name__ == "__main__":
     # zpracovani argumentu
     argParser = argparse.ArgumentParser()
     argParser.add_argument("--source", help = "source XML file in IPPcode23")
-    #argParser.add_argument("--input", help = "input file")
+    argParser.add_argument("--input", help = "input file")
     args = argParser.parse_args()
 
     # TODO stdin kdyz nejsou zadany argumenty
     sourceFile = args.source
-    #inputFile = args.input
+    inputFile = args.input
+
+    # input file check
+    if (sourceFile == None and inputFile == None):
+        sys.stderr.write("Error: No input and source file")
+        sys.exit(10)
+
+    if (sourceFile == None):
+        sourceFile = sys.stdin
+
+    if (inputFile == None):
+        inputFile = sys.stdin
 
     # xml parser
     try:

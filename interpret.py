@@ -23,13 +23,11 @@ class instruction:
             arg = (i.attrib["type"], i.text)
             self._args.append(arg)
 
-    def run(self):
-        while self.programCounter < len(self._instList):
-            self.executeOnPC()
-
     def executeOnPC(self):
+        print("Executing: ", self._instList[self.programCounter].getName())
         self._instList[self.programCounter].execute()
         self.programCounter += 1
+        print("PC: ", self.programCounter)
 
     def getInstList(self):
         return self._instList
@@ -124,7 +122,11 @@ class instruction:
         self._labelDic.update({label: self._order})
 
     def getLabelPos(self, label):
-        return self._labelDic[label]
+        try:
+            return self._labelDic[label]
+        except KeyError:
+            sys.stderr.write("Label " + label + " not defined")
+            sys.exit(52)
     
     # program counter
     def getPC(self):
@@ -664,6 +666,15 @@ class jump(instruction):
     def __init__(self, order, args):
         super().__init__("JUMP", order, args, self)
 
+    def execute(self):
+        arg = super().getArgs()[0]
+        label = arg[1]
+
+        #instruction.programCounter = super().getLabelPos(label)
+        super().setPC(int(super().getLabelPos(label)))
+        print("PC from jump: ", instruction.programCounter)
+        print("setting PC to:", super().getLabelPos(label))
+
 class jumpifeq(instruction):
     def __init__(self, order, args):
         super().__init__("JUMPIFEQ", order, args, self)
@@ -832,9 +843,13 @@ if __name__ == "__main__":
             args.append(j)
             
         i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
-        #i1.execute()
 
-    super(type(i1), i1).run()
+    # spusteni instrukci
+    lenOfInstList = len(super(type(i1), i1).getInstList())
+    print("len of label list:", lenOfInstList)
+    while super(type(i1), i1).getPC() != lenOfInstList:
+        print("PC form main: ", super(type(i1), i1).getPC())
+        super(type(i1), i1).executeOnPC()
 
     # debug print
     #print(i1.getGfVarList())

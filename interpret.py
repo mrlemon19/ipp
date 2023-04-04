@@ -12,7 +12,7 @@ class instruction:
     _stack = []
     _gfVarDic = {}
     _labelDic = {}
-    _programCounter = 0
+    programCounter = 0
     def __init__(self, opcode, order, args, inst):
         self._name: str = opcode
         self._order: int = order
@@ -22,6 +22,14 @@ class instruction:
         for i in args:
             arg = (i.attrib["type"], i.text)
             self._args.append(arg)
+
+    def run(self):
+        while self.programCounter < len(self._instList):
+            self.executeOnPC()
+
+    def executeOnPC(self):
+        self._instList[self.programCounter].execute()
+        self.programCounter += 1
 
     def getInstList(self):
         return self._instList
@@ -120,10 +128,10 @@ class instruction:
     
     # program counter
     def getPC(self):
-        return self._programCounter
+        return self.programCounter
     
     def setPC(self, value):
-        self._programCounter = value
+        self.programCounter = value
 
     # stack
     def pushStack(self, symbol):
@@ -825,15 +833,9 @@ if __name__ == "__main__":
             
         i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
         #i1.execute()
-    
-    instList = super(type(i1), i1).getInstList()
-    
-    for i in instList:
-        i.execute()
 
-    print(instList)
-    
+    super(type(i1), i1).run()
 
     # debug print
-    print(i1.getGfVarList())
+    #print(i1.getGfVarList())
     #print(i1.getLabelList())

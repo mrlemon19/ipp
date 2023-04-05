@@ -13,6 +13,8 @@ class instruction:
     _gfVarDic = {}
     _labelDic = {}
     programCounter = 0
+    _frameStack = []
+    _temporaryFrame = None
     def __init__(self, opcode, order, args, inst):
         self._name: str = opcode
         self._order: int = order
@@ -53,11 +55,9 @@ class instruction:
             if varSplit[0] == "GF":
                 return self.getGfVar(varSplit[1])
             elif varSplit[0] == "LF":
-                print("LF frame not implemented yet")
-                exit(99)
+                return self.getLocalFrame().getVarF(varSplit[1])
             elif varSplit[0] == "TF":
-                print("TF frame not implemented yet")
-                exit(99)
+                return self.getTemporaryFrame().getVarF(varSplit[1])
             else:
                 # canot happen
                 sys.stderr.write("error: unknown frame")
@@ -66,17 +66,15 @@ class instruction:
             sys.stderr.write("Variable " + var + " not defined")
             sys.exit(54)
 
-    # gets touple (type, value) and stores it into GF, LF, TF variable dictionary
+    # gets touple (type, value) and stores it into GF, LF, TF frame variable dictionary
     def addVar(self, var):
         varSplit = var.split("@")
         if varSplit[0] == "GF":
             self.addGfVar(varSplit[1])
         elif varSplit[0] == "LF":
-            print("LF frame not implemented yet")
-            exit(99)
+            self.getLocalFrame().addVarF(varSplit[1])
         elif varSplit[0] == "TF":
-            print("TF frame not implemented yet")
-            exit(99)
+            self.getTemporaryFrame().addVarF(varSplit[1])
         else:
             # canot happen
             sys.stderr.write("error: unknown frame")
@@ -87,11 +85,9 @@ class instruction:
         if varSplit[0] == "GF":
             self.setGfVar(varSplit[1], type_, value)
         elif varSplit[0] == "LF":
-            print("LF frame not implemented yet")
-            exit(99)
+            self.getLocalFrame().setVarF(varSplit[1], type_, value)
         elif varSplit[0] == "TF":
-            print("TF frame not implemented yet")
-            exit(99)
+            self.getTemporaryFrame().setVarF(varSplit[1], type_, value)
         else:
             # canot happen
             sys.stderr.write("error: unknown frame")
@@ -150,6 +146,67 @@ class instruction:
     def stackEmpty(self):
         return len(self._stack) == 0
 
+    # frames
+    def createFrame(self):
+        self._temporaryFrame = frame()
+
+    def pushFrame(self):
+        if self._temporaryFrame == None:
+            sys.stderr.write("error(55): no temporary frame")
+            sys.exit(55)
+        
+        self._frameStack.append(self._temporaryFrame)
+        self._temporaryFrame = None
+
+    def popFrame(self):
+        if len(self._frameStack) == 0:
+            sys.stderr.write("error(55): no frame to pop")
+            sys.exit(55)
+
+        self._temporaryFrame = self._frameStack.pop()
+
+    def getFrameStack(self):
+        return self._frameStack
+    
+    def getTemporaryFrame(self):
+        if self._temporaryFrame == None:
+            sys.stderr.write("error(55): no temporary frame")
+            sys.exit(55)
+
+        return self._temporaryFrame
+    
+    def getLocalFrame(self):
+        if len(self._frameStack) == 0:
+            sys.stderr.write("error(55): accessing empty frame stack")
+            sys.exit(55)
+        
+        return self._frameStack[-1]
+
+
+class frame:
+    def __init__(self):
+        self.varDic = {}
+        instruction._temporaryFrame = self
+        print("frame created")
+
+    def addVarF(self, var):
+        self.varDic.update({var: None})
+
+    def setVarF(self, var, type_, value):
+        try:
+            correntValue = self.varDic[var] # only to check if it exists
+            self.varDic[var] = (type_, value)
+        except KeyError:
+            sys.stderr.write("Variable " + var + " not defined")
+            sys.exit(54)
+
+    def getVarF(self, var):
+        try:
+            return self.varDic[var]
+        except KeyError:
+            sys.stderr.write("Variable " + var + " not defined")
+            sys.exit(54)
+
 
 # classy pro konkretni instrukce
 class move(instruction):
@@ -171,13 +228,22 @@ class createframe(instruction):
     def __init__(self, order, args):
         super().__init__("CREATEFRAME", order, args, self)
 
+    def execute(self):
+        super().createFrame()
+
 class pushframe(instruction):
     def __init__(self, order, args):
         super().__init__("PUSHFRAME", order, args, self)
 
+    def execute(self):
+        super().pushFrame()
+
 class popframe(instruction):
     def __init__(self, order, args):
         super().__init__("POPFRAME", order, args, self)
+
+    def execute(self):
+        super().popFrame()
 
 class defvar(instruction):
     def __init__(self, order, args):
@@ -795,6 +861,10 @@ class break_(instruction):
     def __init__(self, order, args):
         super().__init__("BREAK", order, args, self)
 
+    def execute(self):
+        # vypise stav interpretu (promene, ramce, ...)
+        print("break not implemented yet :(")
+
 # tovarna na instrukce
 class instrucionFactory:
     @classmethod
@@ -921,5 +991,6 @@ if __name__ == "__main__":
         super(type(i1), i1).executeOnPC()
 
     # debug print
+    print("frame stack: ", super(type(i1), i1).getFrameStack())
     #print(i1.getGfVarList())
     #print(i1.getLabelList())

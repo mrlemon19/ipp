@@ -115,6 +115,7 @@ class instruction:
             sys.exit(54)
 
     # label
+    # used in jumps
     def getLabelList(self):
         return self._labelDic
 
@@ -671,7 +672,7 @@ class jump(instruction):
         label = arg[1]
 
         #instruction.programCounter = super().getLabelPos(label)
-        super().setPC(int(super().getLabelPos(label)))
+        super().setPC(int(super().getLabelPos(label)) - 1)
         print("PC from jump: ", instruction.programCounter)
         print("setting PC to:", super().getLabelPos(label))
 
@@ -679,9 +680,78 @@ class jumpifeq(instruction):
     def __init__(self, order, args):
         super().__init__("JUMPIFEQ", order, args, self)
 
+    def execute(self):
+        arg = super().getArgs()[0]
+        label = arg[1]
+
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == symb2[0]:
+            if symb1[0] == "nil":
+                #instruction.programCounter = super().getLabelPos(label)
+                super().setPC(int(super().getLabelPos(label)) - 1)
+            elif symb1[0] == "bool":
+                if symb1[1] == symb2[1]:
+                    #instruction.programCounter = super().getLabelPos(label)
+                    super().setPC(int(super().getLabelPos(label)) - 1)
+            elif symb1[0] == "int":
+                if int(symb1[1]) == int(symb2[1]):
+                    #instruction.programCounter = super().getLabelPos(label)
+                    super().setPC(int(super().getLabelPos(label)) - 1)
+            elif symb1[0] == "string":
+                if symb1[1] == symb2[1]:
+                    #instruction.programCounter = super().getLabelPos(label)
+                    super().setPC(int(super().getLabelPos(label)) - 1)
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
+
 class jumpifneq(instruction):
     def __init__(self, order, args):
         super().__init__("JUMPIFNEQ", order, args, self)
+
+    def execute(self):
+        arg = super().getArgs()[0]
+        label = arg[1]
+
+        symb1 = super().getArgs()[1]
+        symb2 = super().getArgs()[2]
+
+        if symb1[0] == "var":
+            symb1 = super().getVarValue(symb1[1])
+
+        if symb2[0] == "var":
+            symb2 = super().getVarValue(symb2[1])
+
+        if symb1[0] == symb2[0]:
+            if symb1[0] == "nil":
+                #instruction.programCounter = super().getLabelPos(label)
+                super().setPC(int(super().getLabelPos(label)) - 1)
+            elif symb1[0] == "bool":
+                if symb1[1] != symb2[1]:
+                    #instruction.programCounter = super().getLabelPos(label)
+                    super().setPC(int(super().getLabelPos(label)) - 1)
+            elif symb1[0] == "int":
+                if int(symb1[1]) != int(symb2[1]):
+                    #instruction.programCounter = super().getLabelPos(label)
+                    super().setPC(int(super().getLabelPos(label)) - 1)
+                    print("jumpifneq: ", symb1[1], " != ", symb2[1], "going to jump")
+            elif symb1[0] == "string":
+                if symb1[1] != symb2[1]:
+                    #instruction.programCounter = super().getLabelPos(label)
+                    super().setPC(int(super().getLabelPos(label)) - 1)
+            else:
+                print("jumpifneq: ", symb1[1], " == ", symb2[1], "not going to jump")
+        else:
+            sys.stderr.write("error(53): wrong type of operands")
+            sys.exit(53)
 
 class exit_(instruction):
     def __init__(self, order, args):
@@ -848,7 +918,6 @@ if __name__ == "__main__":
     lenOfInstList = len(super(type(i1), i1).getInstList())
     print("len of label list:", lenOfInstList)
     while super(type(i1), i1).getPC() != lenOfInstList:
-        print("PC form main: ", super(type(i1), i1).getPC())
         super(type(i1), i1).executeOnPC()
 
     # debug print

@@ -15,6 +15,7 @@ class instruction:
     programCounter = 0
     _frameStack = []
     _temporaryFrame = None
+    _callStack = []
     def __init__(self, opcode, order, args, inst):
         self._name: str = opcode
         self._order: int = order
@@ -24,6 +25,9 @@ class instruction:
         for i in args:
             arg = (i.attrib["type"], i.text)
             self._args.append(arg)
+
+        if self._name == "LABEL":
+            self._labelDic.update({self._args[0][1]: self._order})
 
     def executeOnPC(self):
         print("Executing: ", self._instList[self.programCounter].getName())
@@ -182,6 +186,22 @@ class instruction:
         
         return self._frameStack[-1]
 
+    # call stack
+    def pushCallStack(self, value):
+        self._callStack.append(value)
+
+    def popCallStack(self):
+        if self.callStackEmpty():
+            sys.stderr.write("error(56): pops from empty call stack but call stack is empty")
+            sys.exit(56)
+        
+        return self._callStack.pop()
+    
+    def callStackEmpty(self):
+        return len(self._callStack) == 0
+    
+    def getCallStack(self):
+        return self._callStack
 
 class frame:
     def __init__(self):
@@ -258,9 +278,18 @@ class call(instruction):
     def __init__(self, order, args):
         super().__init__("CALL", order, args, self)
 
+    def execute(self):
+        arg = super().getArgs()[0]
+        label = arg[1]
+        super().pushCallStack(super().getPC() + 1)
+        super().setPC(int(super().getLabelPos(label)) - 1)
+
 class return_(instruction):
     def __init__(self, order, args):
         super().__init__("RETURN", order, args, self)
+
+    def execute(self):
+        super().setPC(super().popCallStack())
 
 class pushs(instruction):   
     def __init__(self, order, args):
@@ -725,9 +754,7 @@ class label(instruction):
         super().__init__("LABEL", order, args, self)
 
     def execute(self):
-        arg = super().getArgs()[0]
-        label = arg[1]
-        super().addLabel(label)
+        pass
 
 class jump(instruction):
     def __init__(self, order, args):

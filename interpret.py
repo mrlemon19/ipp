@@ -25,6 +25,13 @@ class instruction:
             arg = (i.attrib["type"], i.text)
             self._args.append(arg)
 
+        if self._name == "LABEL":
+            if self._name in self._labelDic:
+                sys.stderr.write("error(52): label already defined")
+                sys.exit(52)
+
+            self.addLabel(self._args[0][1])
+
     def executeOnPC(self):
         print("Executing: ", self._instList[self.programCounter].getName())
         self._instList[self.programCounter].execute()
@@ -130,6 +137,8 @@ class instruction:
         return self.programCounter
     
     def setPC(self, value):
+        print("set pc to: ", value)
+        print("instruction on value: ", self._instList[value].getName())
         self.programCounter = value
 
     # stack
@@ -725,9 +734,7 @@ class label(instruction):
         super().__init__("LABEL", order, args, self)
 
     def execute(self):
-        arg = super().getArgs()[0]
-        label = arg[1]
-        super().addLabel(label)
+        pass
 
 class jump(instruction):
     def __init__(self, order, args):
@@ -739,7 +746,7 @@ class jump(instruction):
 
         #instruction.programCounter = super().getLabelPos(label)
         super().setPC(int(super().getLabelPos(label)) - 1)
-        print("PC from jump: ", instruction.programCounter)
+        print("PC from jump: ", super().getPC())
         print("setting PC to:", super().getLabelPos(label))
 
 class jumpifeq(instruction):
@@ -992,5 +999,6 @@ if __name__ == "__main__":
 
     # debug print
     print("frame stack: ", super(type(i1), i1).getFrameStack())
+    print("instruction list: ", super(type(i1), i1).getInstList())
     #print(i1.getGfVarList())
     #print(i1.getLabelList())

@@ -15,6 +15,7 @@ class instruction:
     programCounter = 0
     _frameStack = []
     _temporaryFrame = None
+    _targetIndex = None
     def __init__(self, opcode, order, args, inst):
         self._name: str = opcode
         self._order: int = order
@@ -32,10 +33,23 @@ class instruction:
 
             self.addLabel(self._args[0][1])
 
+    def run(self):
+        while self.programCounter < len(self._instList):
+            if self._instList[self.programCounter].getName() in ["JUMP", "JUMPIFEQ", "JUMPIFNEQ"]:
+                print("it is JUMP")
+                if self._instList[self.programCounter].execute():
+                    print("jumping to: ", self._instList[self.programCounter].getArgs()[0][1])
+                    # gets instruction on PC and gets its label possition, then sets program counter to that position
+                    self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
+                else:
+                    self.programCounter += 1
+            else:
+                self.executeOnPC()
+                self.programCounter += 1
+
     def executeOnPC(self):
         print("Executing: ", self._instList[self.programCounter].getName())
         self._instList[self.programCounter].execute()
-        self.programCounter += 1
         print("PC: ", self.programCounter)
 
     def getInstList(self):
@@ -741,13 +755,11 @@ class jump(instruction):
         super().__init__("JUMP", order, args, self)
 
     def execute(self):
-        arg = super().getArgs()[0]
-        label = arg[1]
-
+        return True
         #instruction.programCounter = super().getLabelPos(label)
-        super().setPC(int(super().getLabelPos(label)) - 1)
-        print("PC from jump: ", super().getPC())
-        print("setting PC to:", super().getLabelPos(label))
+        #super().setPC(int(super().getLabelPos(label)) - 1)
+        #print("PC from jump: ", super().getPC())
+        #print("setting PC to:", super().getLabelPos(label))
 
 class jumpifeq(instruction):
     def __init__(self, order, args):
@@ -766,25 +778,33 @@ class jumpifeq(instruction):
         if symb2[0] == "var":
             symb2 = super().getVarValue(symb2[1])
 
+        goingtoJump = False
+
         if symb1[0] == symb2[0]:
             if symb1[0] == "nil":
                 #instruction.programCounter = super().getLabelPos(label)
-                super().setPC(int(super().getLabelPos(label)) - 1)
+                #super().setPC(int(super().getLabelPos(label)) - 1)
+                goingtoJump = True
             elif symb1[0] == "bool":
                 if symb1[1] == symb2[1]:
                     #instruction.programCounter = super().getLabelPos(label)
-                    super().setPC(int(super().getLabelPos(label)) - 1)
+                    #super().setPC(int(super().getLabelPos(label)) - 1)
+                    goingtoJump = True
             elif symb1[0] == "int":
                 if int(symb1[1]) == int(symb2[1]):
                     #instruction.programCounter = super().getLabelPos(label)
-                    super().setPC(int(super().getLabelPos(label)) - 1)
+                    #super().setPC(int(super().getLabelPos(label)) - 1)
+                    goingtoJump = True
             elif symb1[0] == "string":
                 if symb1[1] == symb2[1]:
                     #instruction.programCounter = super().getLabelPos(label)
-                    super().setPC(int(super().getLabelPos(label)) - 1)
+                    #super().setPC(int(super().getLabelPos(label)) - 1)
+                    goingtoJump = True
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
+
+        return goingtoJump
 
 class jumpifneq(instruction):
     def __init__(self, order, args):
@@ -803,28 +823,35 @@ class jumpifneq(instruction):
         if symb2[0] == "var":
             symb2 = super().getVarValue(symb2[1])
 
+        goingtoJump = False
+
         if symb1[0] == symb2[0]:
             if symb1[0] == "nil":
                 #instruction.programCounter = super().getLabelPos(label)
-                super().setPC(int(super().getLabelPos(label)) - 1)
+                #super().setPC(int(super().getLabelPos(label)) - 1)
+                goingtoJump = True
             elif symb1[0] == "bool":
                 if symb1[1] != symb2[1]:
                     #instruction.programCounter = super().getLabelPos(label)
-                    super().setPC(int(super().getLabelPos(label)) - 1)
+                    #super().setPC(int(super().getLabelPos(label)) - 1)
+                    goingtoJump = True
             elif symb1[0] == "int":
                 if int(symb1[1]) != int(symb2[1]):
                     #instruction.programCounter = super().getLabelPos(label)
-                    super().setPC(int(super().getLabelPos(label)) - 1)
-                    print("jumpifneq: ", symb1[1], " != ", symb2[1], "going to jump")
+                    #super().setPC(int(super().getLabelPos(label)) - 1)
+                    goingtoJump = True
             elif symb1[0] == "string":
                 if symb1[1] != symb2[1]:
                     #instruction.programCounter = super().getLabelPos(label)
-                    super().setPC(int(super().getLabelPos(label)) - 1)
+                    #super().setPC(int(super().getLabelPos(label)) - 1)
+                    goingtoJump = True
             else:
                 print("jumpifneq: ", symb1[1], " == ", symb2[1], "not going to jump")
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
+
+        return goingtoJump
 
 class exit_(instruction):
     def __init__(self, order, args):
@@ -992,13 +1019,15 @@ if __name__ == "__main__":
         i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
 
     # spusteni instrukci
-    lenOfInstList = len(super(type(i1), i1).getInstList())
-    print("len of label list:", lenOfInstList)
-    while super(type(i1), i1).getPC() != lenOfInstList:
-        super(type(i1), i1).executeOnPC()
+    #lenOfInstList = len(super(type(i1), i1).getInstList())
+    #print("len of label list:", lenOfInstList)
+    #while super(type(i1), i1).getPC() != lenOfInstList:
+    #    super(type(i1), i1).executeOnPC()
+
+    super(type(i1), i1).run()
 
     # debug print
-    print("frame stack: ", super(type(i1), i1).getFrameStack())
-    print("instruction list: ", super(type(i1), i1).getInstList())
+    #print("frame stack: ", super(type(i1), i1).getFrameStack())
+    #print("instruction list: ", super(type(i1), i1).getInstList())
     #print(i1.getGfVarList())
-    #print(i1.getLabelList())
+    print(i1.getLabelList())

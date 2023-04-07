@@ -27,6 +27,11 @@ class instruction:
             self._args.append(arg)
 
         if self._name == "LABEL":
+            print("LABEL: ", self._args[0][1])
+            if self._args[0][1] in self._labelDic:
+                sys.stderr.write("error(52): label already defined")
+                sys.exit(52)
+
             self._labelDic.update({self._args[0][1]: self._order})
 
     def executeOnPC(self):
@@ -1018,6 +1023,8 @@ if __name__ == "__main__":
         super(type(i1), i1).executeOnPC()
 
     # debug print
-    print("frame stack: ", super(type(i1), i1).getFrameStack())
+    print("call stack: ", super(type(i1), i1).getCallStack())
+    print("lable list: ", super(type(i1), i1).getLabelList())
+    #print("frame stack: ", super(type(i1), i1).getFrameStack())
     #print(i1.getGfVarList())
     #print(i1.getLabelList())

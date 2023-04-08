@@ -28,7 +28,7 @@ class instruction:
             self._args.append(arg)
 
         if self._name == "LABEL":
-            if self._name in self._labelDic:
+            if self._args[0][1] in self._labelDic:
                 sys.stderr.write("error(52): label already defined")
                 sys.exit(52)
 
@@ -1088,7 +1088,7 @@ if __name__ == "__main__":
 
     # parsovani instrukci
     for i in root:
-        print(i.tag, i.attrib)
+        #print(i.tag, i.attrib)
         args = []
         for j in i:
             args.append(j)
@@ -1104,9 +1104,9 @@ if __name__ == "__main__":
     super(type(i1), i1).run()
 
     # debug print
-    for i in super(type(i1), i1).getFrameStack():
-        print("frame on stack: ", str(i))
-    print("temporary frame: ", str(super(type(i1), i1).getTemporaryFrame()))
+    #for i in super(type(i1), i1).getFrameStack():
+    #    print("frame on stack: ", str(i))
+    #print("temporary frame: ", str(super(type(i1), i1).getTemporaryFrame()))
     #print("instruction list: ", super(type(i1), i1).getInstList())
     #print(i1.getGfVarList())
     #print(i1.getLabelList())

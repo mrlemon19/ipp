@@ -27,13 +27,6 @@ class instruction:
             arg = (i.attrib["type"], i.text)
             self._args.append(arg)
 
-        if self._name == "LABEL":
-            if self._args[0][1] in self._labelDic:
-                sys.stderr.write("error(52): label already defined")
-                sys.exit(52)
-
-            self.addLabel(self._args[0][1])
-
     def __str__(self):
         return self._name + " " + str(self._args)
 
@@ -50,7 +43,7 @@ class instruction:
                         self.pushCallStack(self.programCounter + 1)
                         self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
                     else:
-                        #print("jumping to: ", self._instList[self.programCounter].getArgs()[0][1])
+                        #print("jumping to: ", self._instList[self.programCounter].getArgs()[0][1], " at position: ", self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1]))
                         # gets instruction on PC and gets its label possition, then sets program counter to that position
                         self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
                 else:
@@ -64,6 +57,14 @@ class instruction:
         self._instList[self.programCounter].execute()
         self.instructionCounter += 1
         #print("PC: ", self.programCounter)
+
+    def sortInstList(self):
+        self._instList.sort(key=instruction.getOrder)
+
+    def structureLabel(self):
+        for i in range(len(self._instList)):
+            if self._instList[i].getName() == "LABEL":
+                self._labelDic.update({self._instList[i].getArgs()[0][1]: i})
 
     def getInstList(self):
         return self._instList
@@ -1101,6 +1102,10 @@ if __name__ == "__main__":
     #while super(type(i1), i1).getPC() != lenOfInstList:
     #    super(type(i1), i1).executeOnPC()
 
+    super(type(i1), i1).sortInstList()
+    super(type(i1), i1).structureLabel()
+    print('\n'.join(str(i) for i in super(type(i1), i1).getInstList()))
+    print("")
     super(type(i1), i1).run()
 
     # debug print

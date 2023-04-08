@@ -681,13 +681,14 @@ class write(instruction):
             print(symb[1], end="")
         elif symb[0] == "string":
             s = symb[1]
-            #while i := 0 < len(s):
-            #    if s[i] == "\\" and i < len(s)-3 and s[i+1].isdigit() and s[i+2].isdigit() and s[i+3].isdigit():
-            #        num = int(s[i+1:i+4])
-            #    if (num >= 0 and num <= 32) or num == 35 or num == 92:
-            #        s = s[:i] + chr(num) + s[i+4:]
-            #        i += 1
-            #    i += 1
+            i = 0
+            while i < len(s):
+                if s[i] == "\\" and i < len(s)-3 and s[i+1].isdigit() and s[i+2].isdigit() and s[i+3].isdigit():
+                    num = int(s[i+1:i+4])
+                    if (num >= 0 and num <= 32) or num == 35 or num == 92:
+                        s = s[:i] + chr(num) + s[i+4:]
+                        i += 1
+                i += 1
 
             print(s, end="")
 

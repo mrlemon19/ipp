@@ -16,6 +16,7 @@ class instruction:
     _frameStack = []
     _temporaryFrame = None
     _callStack = []
+    instructionCounter = 0
     def __init__(self, opcode, order, args, inst):
         self._name: str = opcode
         self._order: int = order
@@ -32,6 +33,9 @@ class instruction:
                 sys.exit(52)
 
             self.addLabel(self._args[0][1])
+
+    def __str__(self):
+        return self._name + " " + str(self._args)
 
     def run(self):
         while self.programCounter < len(self._instList):
@@ -58,6 +62,7 @@ class instruction:
     def executeOnPC(self):
         print("Executing: ", self._instList[self.programCounter].getName())
         self._instList[self.programCounter].execute()
+        self.instructionCounter += 1
         print("PC: ", self.programCounter)
 
     def getInstList(self):
@@ -229,6 +234,9 @@ class instruction:
     
     def getCallStack(self):
         return self._callStack
+    
+    def getInstructionCounter(self):
+        return self.instructionCounter
 
 class frame:
     def __init__(self):
@@ -931,7 +939,18 @@ class break_(instruction):
 
     def execute(self):
         # vypise stav interpretu (promene, ramce, ...)
-        print("break not implemented yet :(")
+        breakOrder = str(super().getOrder())
+        tempFrame = str(super().getTempFrame())
+        localFrame = str(super().getLocalFrame())
+        instructionCounter = str(super().getInstructionCounter())
+        globalFrame = str(super().getGfVarList())
+        breakMessage = '''Breakpoint at order: {breakOrder}
+        temporary frame: {tempFrame}
+        global frame: {globalFrame}
+        current local frame: {localFrame}
+        number of executed instructions: {instructionCounter}
+        '''
+        sys.stderr.write(breakMessage)
 
 # tovarna na instrukce
 class instrucionFactory:

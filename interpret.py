@@ -15,7 +15,7 @@ class instruction:
     programCounter = 0
     _frameStack = []
     _temporaryFrame = None
-    _targetIndex = None
+    _callStack = []
     def __init__(self, opcode, order, args, inst):
         self._name: str = opcode
         self._order: int = order
@@ -35,12 +35,20 @@ class instruction:
 
     def run(self):
         while self.programCounter < len(self._instList):
-            if self._instList[self.programCounter].getName() in ["JUMP", "JUMPIFEQ", "JUMPIFNEQ"]:
+            if self._instList[self.programCounter].getName() in ["JUMP", "JUMPIFEQ", "JUMPIFNEQ", "CALL", "RETURN"]:
                 print("it is JUMP")
                 if self._instList[self.programCounter].execute():
-                    print("jumping to: ", self._instList[self.programCounter].getArgs()[0][1])
-                    # gets instruction on PC and gets its label possition, then sets program counter to that position
-                    self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
+                    if self._instList[self.programCounter].getName() == "RETURN":
+                        print("returning to: ", self._callStack[-1])
+                        self.setPC(int(self.popCallStack()))
+                    elif self._instList[self.programCounter].getName() == "CALL":
+                        print("calling: ", self._instList[self.programCounter].getArgs()[0][1])
+                        self.pushCallStack(self.programCounter + 1)
+                        self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
+                    else:
+                        print("jumping to: ", self._instList[self.programCounter].getArgs()[0][1])
+                        # gets instruction on PC and gets its label possition, then sets program counter to that position
+                        self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
                 else:
                     self.programCounter += 1
             else:
@@ -204,7 +212,23 @@ class instruction:
             sys.exit(55)
         
         return self._frameStack[-1]
+    
+    # call stack
+    def pushCallStack(self, value):
+        self._callStack.append(value)
 
+    def popCallStack(self):
+        if self.callStackEmpty():
+            sys.stderr.write("error(56): pops from empty call stack but call stack is empty")
+            sys.exit(56)
+        
+        return self._callStack.pop()
+
+    def callStackEmpty(self):
+        return len(self._callStack) == 0
+    
+    def getCallStack(self):
+        return self._callStack
 
 class frame:
     def __init__(self):
@@ -281,9 +305,19 @@ class call(instruction):
     def __init__(self, order, args):
         super().__init__("CALL", order, args, self)
 
+    def execute(self):
+        return True
+
 class return_(instruction):
     def __init__(self, order, args):
         super().__init__("RETURN", order, args, self)
+
+    def execute(self):
+        if super().callStackEmpty():
+            sys.stderr.write("error(56): pops from empty call stack but call stack is empty")
+            sys.exit(56)
+        
+        return True
 
 class pushs(instruction):   
     def __init__(self, order, args):

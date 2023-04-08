@@ -1073,10 +1073,19 @@ if __name__ == "__main__":
         sys.exit(10)
 
     if (sourceFile == None):
-        sourceFile = sys.stdin
+        #TODO stdin source file
+        sourceFile = input()
 
     if (inputFile == None):
         inputFile = sys.stdin
+    else:
+        try:
+            inputFile = open(inputFile, "r")
+            sys.stdin = inputFile
+        except IOError as e:
+            sys.stderr.write("Error: Input file error: ", e)
+            sys.exit(11)
+
 
     # xml parser
     try:

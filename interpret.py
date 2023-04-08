@@ -14,7 +14,7 @@ class instruction:
     _labelDic = {}
     programCounter = 0
     _frameStack = []
-    _temporaryFrame = None
+    _temporaryFrame = []
     _callStack = []
     instructionCounter = 0
     def __init__(self, opcode, order, args, inst):
@@ -40,17 +40,17 @@ class instruction:
     def run(self):
         while self.programCounter < len(self._instList):
             if self._instList[self.programCounter].getName() in ["JUMP", "JUMPIFEQ", "JUMPIFNEQ", "CALL", "RETURN"]:
-                print("it is JUMP")
+                #print("it is JUMP")
                 if self._instList[self.programCounter].execute():
                     if self._instList[self.programCounter].getName() == "RETURN":
-                        print("returning to: ", self._callStack[-1])
+                        #print("returning to: ", self._callStack[-1])
                         self.setPC(int(self.popCallStack()))
                     elif self._instList[self.programCounter].getName() == "CALL":
-                        print("calling: ", self._instList[self.programCounter].getArgs()[0][1])
+                        #print("calling: ", self._instList[self.programCounter].getArgs()[0][1])
                         self.pushCallStack(self.programCounter + 1)
                         self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
                     else:
-                        print("jumping to: ", self._instList[self.programCounter].getArgs()[0][1])
+                        #print("jumping to: ", self._instList[self.programCounter].getArgs()[0][1])
                         # gets instruction on PC and gets its label possition, then sets program counter to that position
                         self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
                 else:
@@ -60,10 +60,10 @@ class instruction:
                 self.programCounter += 1
 
     def executeOnPC(self):
-        print("Executing: ", self._instList[self.programCounter].getName())
+        #print("Executing: ", self._instList[self.programCounter].getName())
         self._instList[self.programCounter].execute()
         self.instructionCounter += 1
-        print("PC: ", self.programCounter)
+        #print("PC: ", self.programCounter)
 
     def getInstList(self):
         return self._instList
@@ -164,8 +164,8 @@ class instruction:
         return self.programCounter
     
     def setPC(self, value):
-        print("set pc to: ", value)
-        print("instruction on value: ", self._instList[value].getName())
+        #print("set pc to: ", value)
+        #print("instruction on value: ", self._instList[value].getName())
         self.programCounter = value
 
     # stack
@@ -184,15 +184,19 @@ class instruction:
 
     # frames
     def createFrame(self):
-        self._temporaryFrame = frame()
+        self._temporaryFrame.append(frame())
 
     def pushFrame(self):
-        if self._temporaryFrame == None:
+        try:
+            var = self._temporaryFrame[0]
+        except TypeError:
             sys.stderr.write("error(55): no temporary frame")
             sys.exit(55)
         
         self._frameStack.append(self._temporaryFrame)
-        self._temporaryFrame = None
+        #self._temporaryFrame = None
+        self._temporaryFrame[0] = None
+        
 
     def popFrame(self):
         if len(self._frameStack) == 0:
@@ -242,7 +246,10 @@ class frame:
     def __init__(self):
         self.varDic = {}
         instruction._temporaryFrame = self
-        print("frame created")
+        #print("frame created")
+
+    def __str__(self):
+        return str(self.varDic)
 
     def addVarF(self, var):
         self.varDic.update({var: None})
@@ -663,8 +670,25 @@ class write(instruction):
 
         if symb[0] == "var":
             symb = super().getVarValue(symb[1])
-        if symb[0] == "int" or symb[0] == "string":
+
+        if symb is None:
+            print("", end="")
+            return
+
+        elif symb[0] == "int":
             print(symb[1], end="")
+        elif symb[0] == "string":
+            s = symb[1]
+            #while i := 0 < len(s):
+            #    if s[i] == "\\" and i < len(s)-3 and s[i+1].isdigit() and s[i+2].isdigit() and s[i+3].isdigit():
+            #        num = int(s[i+1:i+4])
+            #    if (num >= 0 and num <= 32) or num == 35 or num == 92:
+            #        s = s[:i] + chr(num) + s[i+4:]
+            #        i += 1
+            #    i += 1
+
+            print(s, end="")
+
         elif symb[0] == "bool":
             print(str(symb[1].lower()), end="")
         elif symb[0] == "nil":
@@ -691,9 +715,9 @@ class concat(instruction):
 
         if symb1[0] == "string" and symb2[0] == "string":
             # debug print
-            print("sym1:", symb1[1])
-            print("sym2:", symb2[1])
-            print("concat:", symb1[1] + symb2[1])
+            #print("sym1:", symb1[1])
+            #print("sym2:", symb2[1])
+            #print("concat:", symb1[1] + symb2[1])
             super().setVarValue(var[1], "string", symb1[1] + symb2[1])
         else:
             sys.stderr.write("error(53): wrong type of operands")
@@ -1080,7 +1104,9 @@ if __name__ == "__main__":
     super(type(i1), i1).run()
 
     # debug print
-    #print("frame stack: ", super(type(i1), i1).getFrameStack())
+    for i in super(type(i1), i1).getFrameStack():
+        print("frame on stack: ", str(i))
+    print("temporary frame: ", str(super(type(i1), i1).getTemporaryFrame()))
     #print("instruction list: ", super(type(i1), i1).getInstList())
     #print(i1.getGfVarList())
-    print(i1.getLabelList())
+    #print(i1.getLabelList())

@@ -142,7 +142,7 @@ class instruction:
         try:
             self._gfVarDic[var] = (type_, value)
         except KeyError:
-            sys.stderr.write("Variable " + var + " not defined")
+            sys.stderr.write("error(54): Variable " + var + " not defined")
             sys.exit(54)
 
     # label
@@ -157,7 +157,7 @@ class instruction:
         try:
             return self._labelDic[label]
         except KeyError:
-            sys.stderr.write("Label " + label + " not defined")
+            sys.stderr.write("error(52): Label " + label + " not defined")
             sys.exit(52)
     
     # program counter
@@ -642,25 +642,26 @@ class read(instruction):
             value = ""
             type_ = "nil"
 
-        if type_ == "int":
+        if type_[1] == "int":
             try:
                 value = int(value)
             except ValueError:
                 value = ""
                 type_ = "nil"
 
-        elif type_ == "bool":
+        elif type_[1] == "bool":
             if value.lower() == "true":
                 value = True
             else:
                 value = False
-        elif type_ == "string":
+        elif type_[1] == "string":
             value = str(value)
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
 
-        super().setVarValue(var[1], type_, value)
+        print("value from read: ", value, "type: ", type_)
+        super().setVarValue(var[1], type_[1], value)
 
 class write(instruction):
     def __init__(self, order, args):

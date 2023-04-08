@@ -59,7 +59,7 @@ class instruction:
         #print("PC: ", self.programCounter)
 
     def sortInstList(self):
-        self._instList.sort(key=instruction.getOrder)
+        self._instList.sort(key=lambda x: x.getOrder())
 
     def structureLabel(self):
         for i in range(len(self._instList)):
@@ -73,7 +73,7 @@ class instruction:
         return self._name
     
     def getOrder(self):
-        return self._order
+        return int(self._order)
 
     # returns touple (type, value)
     def getArgs(self):

@@ -66,7 +66,7 @@ class instruction:
                 sys.exit(32)
             
             if i + 1 < len(self._instList) and self._instList[i].getOrder() == self._instList[i + 1].getOrder():
-                sys.stderr.write("error(32): same order")
+                sys.stderr.write("error(32): duplicite order")
                 sys.exit(32)
 
     def structureLabel(self):
@@ -1062,7 +1062,8 @@ class instrucionFactory:
         elif opcode == "BREAK":
             return break_(order, args)
         else:
-            raise Exception("Unknown instruction")
+            sys.stderr.write("error(32): unknown instruction opcode")
+            sys.exit(32)
 
 if __name__ == "__main__":
 
@@ -1101,7 +1102,6 @@ if __name__ == "__main__":
         root = tree.getroot()
         # kontrola hlavicky
         if root.attrib['language'].upper() != "IPPCODE23":
-            print(root.attrib['language'])
             sys.stderr.write("error(31): incorrect language")
             exit(31)
     except ET.ParseError as e:
@@ -1110,10 +1110,20 @@ if __name__ == "__main__":
     
     # parsovani instrukci
     for i in root:
+        # instruction tag check
+        if i.tag != "instruction":
+            sys.stderr.write("error(32): incorrect instruction tag")
+            sys.exit(32)
+
         #print(i.tag, i.attrib)
         args = []
         for j in i:
-            args.append(j)
+            # argument tag check
+            if j.tag == "arg1" or j.tag == "arg2" or j.tag == "arg3":
+                args.append(j)
+            else:
+                sys.stderr.write("error(32): incorrect argument tag")
+                sys.exit(32)
             
         # trideni argumentu
         args.sort(key = lambda x: int(x.tag[-1]))

@@ -61,8 +61,8 @@ class instruction:
     def sortInstList(self):
         self._instList.sort(key=lambda x: x.getOrder())
         for i in range(len(self._instList)):
-            if self._instList[i].getOrder() < 0:
-                sys.stderr.write("error(32): negative order")
+            if self._instList[i].getOrder() <= 0:
+                sys.stderr.write("error(32): zero on negative order")
                 sys.exit(32)
             
             if i + 1 < len(self._instList) and self._instList[i].getOrder() == self._instList[i + 1].getOrder():

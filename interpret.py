@@ -1107,10 +1107,10 @@ if __name__ == "__main__":
         for j in i:
             args.append(j)
             
-        # roztrideni argumentu
-        args_sorted = sorted(args, key=lambda arg: arg.get('name', ''))
+        # trideni argumentu
+        args.sort(key = lambda x: int(x.tag[-1]))
         # vytvoreni instance instrukce
-        i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args_sorted)
+        i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
 
     # spusteni instrukci
     #lenOfInstList = len(super(type(i1), i1).getInstList())

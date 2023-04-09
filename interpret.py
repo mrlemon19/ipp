@@ -1064,7 +1064,6 @@ if __name__ == "__main__":
     argParser.add_argument("--input", help = "input file")
     args = argParser.parse_args()
 
-    # TODO stdin kdyz nejsou zadany argumenty
     sourceFile = args.source
     inputFile = args.input
 
@@ -1092,12 +1091,15 @@ if __name__ == "__main__":
     try:
         tree = ET.parse(sourceFile)
         root = tree.getroot()
+        # kontrola hlavicky
+        if root.attrib['language'].upper() != "IPPCODE23":
+            print(root.attrib['language'])
+            sys.stderr.write("error(31): incorrect language")
+            exit(31)
     except ET.ParseError as e:
-        sys.stderr.write("Error: XML parse error: ", e)
+        sys.stderr.write("error: XML parse error: ", e)
         sys.exit(31)
     
-    #TODO kontrola spravnosti xml
-
     # parsovani instrukci
     for i in root:
         #print(i.tag, i.attrib)

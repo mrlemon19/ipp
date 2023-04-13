@@ -72,6 +72,9 @@ class instruction:
     def structureLabel(self):
         for i in range(len(self._instList)):
             if self._instList[i].getName() == "LABEL":
+                if self._instList[i].getArgs()[0][1] in self._labelDic:
+                    sys.stderr.write("error(52): duplicite label")
+                    sys.exit(52)
                 self._labelDic.update({self._instList[i].getArgs()[0][1]: i})
 
     def getInstList(self):
@@ -157,9 +160,6 @@ class instruction:
     # used in jumps
     def getLabelList(self):
         return self._labelDic
-
-    def addLabel(self, label):
-        self._labelDic.update({label: self._order})
 
     def getLabelPos(self, label):
         try:
@@ -386,7 +386,11 @@ class add(instruction):
             symb2 = super().getVarValue(symb2[1])
 
         if symb1[0] == "int" and symb2[0] == "int":
-            super().setVarValue(var[1], "int", int(symb1[1]) + int(symb2[1]))
+            try:
+                super().setVarValue(var[1], "int", int(symb1[1]) + int(symb2[1]))
+            except:
+                sys.stderr.write("error(32): incorrect int value")
+                sys.exit(32)
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
@@ -408,7 +412,11 @@ class sub(instruction):
             symb2 = super().getVarValue(symb2[1])
 
         if symb1[0] == "int" and symb2[0] == "int":
-            super().setVarValue(var[1], "int", int(symb1[1]) - int(symb2[1]))
+            try:
+                super().setVarValue(var[1], "int", int(symb1[1]) - int(symb2[1]))
+            except:
+                sys.stderr.write("error(32): incorrect int value")
+                sys.exit(32)
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
@@ -430,7 +438,11 @@ class mul(instruction):
             symb2 = super().getVarValue(symb2[1])
 
         if symb1[0] == "int" and symb2[0] == "int":
-            super().setVarValue(var[1], "int", int(symb1[1]) * int(symb2[1]))
+            try:
+                super().setVarValue(var[1], "int", int(symb1[1]) * int(symb2[1]))
+            except:
+                sys.stderr.write("error(32): incorrect int value")
+                sys.exit(32)
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
@@ -455,7 +467,11 @@ class idiv(instruction):
             if symb2[1] == "0":
                 sys.stderr.write("error(57): division by zero")
                 sys.exit(57)
-            super().setVarValue(var[1], "int", int(symb1[1]) // int(symb2[1]))
+            try:
+                super().setVarValue(var[1], "int", int(symb1[1]) // int(symb2[1]))
+            except:
+                sys.stderr.write("error(32): incorrect int value")
+                sys.exit(32)
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)

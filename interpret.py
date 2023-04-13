@@ -990,6 +990,7 @@ class break_(instruction):
 class instrucionFactory:
     @classmethod
     def createInstruction(cls, opcode, order, args):
+        opcode = opcode.upper()
         if opcode == "MOVE":
             return move(order, args)
         elif opcode == "CREATEFRAME":

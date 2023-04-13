@@ -668,7 +668,7 @@ class read(instruction):
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
 
-        print("value from read: ", value, "type: ", type_)
+        #print("value from read: ", value, "type: ", type_)
         super().setVarValue(var[1], type_[1], value)
 
 class write(instruction):
@@ -701,7 +701,7 @@ class write(instruction):
             print(s, end="")
 
         elif symb[0] == "bool":
-            print(str(symb[1].lower()), end="")
+            print(str(symb[1]).lower(), end="")
         elif symb[0] == "nil":
             print("", end="")
         else:
@@ -922,8 +922,7 @@ class jumpifneq(instruction):
                     #instruction.programCounter = super().getLabelPos(label)
                     #super().setPC(int(super().getLabelPos(label)) - 1)
                     goingtoJump = True
-            else:
-                print("jumpifneq: ", symb1[1], " == ", symb2[1], "not going to jump")
+
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
@@ -959,11 +958,11 @@ class dprint(instruction):
         if symb[0] == "var":
             symb = super().getVarValue(symb[1])
         if symb[0] == "int" or symb[0] == "string":
-            sys.stderr.write(symb[1], end="")
+            sys.stderr.write(symb[1])
         elif symb[0] == "bool":
-            sys.stderr.write(str(symb[1]).lower(), end="")
+            sys.stderr.write(str(symb[1]).lower())
         elif symb[0] == "nil":
-            sys.stderr.write("", end="")
+            sys.stderr.write("")
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
@@ -1138,8 +1137,8 @@ if __name__ == "__main__":
 
     super(type(i1), i1).sortInstList()
     super(type(i1), i1).structureLabel()
-    print('\n'.join(str(i) for i in super(type(i1), i1).getInstList()))
-    print("")
+    #print('\n'.join(str(i) for i in super(type(i1), i1).getInstList()))
+    #print("")
     super(type(i1), i1).run()
 
     # debug print

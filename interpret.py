@@ -1104,8 +1104,8 @@ if __name__ == "__main__":
         if root.attrib['language'].upper() != "IPPCODE23":
             sys.stderr.write("error(31): incorrect language")
             exit(31)
-    except ET.ParseError as e:
-        sys.stderr.write("error: XML parse error: ", e)
+    except:
+        sys.stderr.write("error: XML parse error: ")
         sys.exit(31)
     
     # parsovani instrukci

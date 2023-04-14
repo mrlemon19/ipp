@@ -14,7 +14,7 @@ class instruction:
     _labelDic = {}
     programCounter = 0
     _frameStack = []
-    _temporaryFrame = []
+    _temporaryFrame = None
     _callStack = []
     instructionCounter = 0
     def __init__(self, opcode, order, args, inst):
@@ -193,18 +193,15 @@ class instruction:
 
     # frames
     def createFrame(self):
-        self._temporaryFrame.append(frame())
+        self._temporaryFrame = frame()
 
     def pushFrame(self):
-        try:
-            var = self._temporaryFrame[0]
-        except TypeError:
-            sys.stderr.write("error(55): no temporary frame")
+        if self._temporaryFrame == None:
+            sys.stderr.write("error(55): no frame to push")
             sys.exit(55)
         
         self._frameStack.append(self._temporaryFrame)
-        #self._temporaryFrame = None
-        self._temporaryFrame[0] = None
+        self._temporaryFrame = None
         
 
     def popFrame(self):

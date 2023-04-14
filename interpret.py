@@ -32,8 +32,19 @@ class instruction:
 
     def run(self):
         while self.programCounter < len(self._instList):
+            # pushframe
+            if self._instList[self.programCounter].getName() == "PUSHFRAME":
+                self.pushFrame()
+
+            if self._instList[self.programCounter].getName() == "POPFRAME":
+                self.popFrame()
+
+            # createframe
+            if self._instList[self.programCounter].getName() == "CREATEFRAME":
+                self.createFrame()
+
+            # instrukce provadejici skok
             if self._instList[self.programCounter].getName() in ["JUMP", "JUMPIFEQ", "JUMPIFNEQ", "CALL", "RETURN"]:
-                #print("it is JUMP")
                 if self._instList[self.programCounter].execute():
                     if self._instList[self.programCounter].getName() == "RETURN":
                         #print("returning to: ", self._callStack[-1])
@@ -84,7 +95,11 @@ class instruction:
         return self._name
     
     def getOrder(self):
-        return int(self._order)
+        try:
+            return int(self._order)
+        except ValueError:
+            sys.stderr.write("error(32): order is not integer")
+            sys.exit(32)
 
     # returns touple (type, value)
     def getArgs(self):

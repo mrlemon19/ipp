@@ -1024,7 +1024,7 @@ class instrucionFactory:
         except:
             sys.stderr.write("error(32): missing or incorrect opcode")
             sys.exit(32)
-            
+
         if opcode == "MOVE":
             return move(order, args)
         elif opcode == "CREATEFRAME":
@@ -1134,14 +1134,15 @@ if __name__ == "__main__":
     try:
         tree = ET.parse(sourceFile)
         root = tree.getroot()
-        # kontrola hlavicky
-        if root.attrib['language'].upper() != "IPPCODE23":
-            sys.stderr.write("error(31): incorrect language")
-            exit(31)
     except:
-        sys.stderr.write("error: XML parse error: ")
+        sys.stderr.write("error: XML parse error")
         sys.exit(31)
     
+    # kontrola hlavicky
+    if root.attrib['language'].upper() != "IPPCODE23":
+        sys.stderr.write("error(32): incorrect language")
+        exit(32)
+
     # parsovani instrukci
     for i in root:
         # instruction tag check

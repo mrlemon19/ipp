@@ -97,8 +97,8 @@ class instruction:
     def getOrder(self):
         try:
             return int(self._order)
-        except ValueError:
-            sys.stderr.write("error(32): order is not integer")
+        except:
+            sys.stderr.write("error(32): order is missing or is not correct")
             sys.exit(32)
 
     # returns touple (type, value)

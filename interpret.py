@@ -1018,7 +1018,13 @@ class break_(instruction):
 class instrucionFactory:
     @classmethod
     def createInstruction(cls, opcode, order, args):
-        opcode = opcode.upper()
+
+        try:
+            opcode = opcode.upper()
+        except:
+            sys.stderr.write("error(32): missing or incorrect opcode")
+            sys.exit(32)
+            
         if opcode == "MOVE":
             return move(order, args)
         elif opcode == "CREATEFRAME":

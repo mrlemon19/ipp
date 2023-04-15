@@ -6,23 +6,25 @@ import sys
 import xml.etree.ElementTree as ET
 import argparse
 
-# instrucrion class
+# trida instrukce
 class instruction:
-    _instList = []
-    _stack = []
-    _gfVarDic = {}
-    _labelDic = {}
+    _instList = []      # seznam nactenych instrukci
+    _stack = []         # zasobnik na data
+    _gfVarDic = {}      # slovnik promenych globalniho ramce {[name] = [type, value]}
+    _labelDic = {}      # slovnik labelu {[name] = [position in instList]}
     programCounter = 0
-    _frameStack = []
+    _frameStack = []    # zasobnik ramcu
     _temporaryFrame = None
-    _callStack = []
-    instructionCounter = 0
+    _callStack = []     # zasobnik volani, obsahuje pozice instrukci v instList
+    instructionCounter = 0  # pocitadlo vykonanych instrukci
+
     def __init__(self, opcode, order, args, inst):
         self._name: str = opcode
         self._order: int = order
-        self._instList.append(inst) # inst is instruction object (move, createframe, ...)
+        self._instList.append(inst) # inst je objekt co zavolal tuto metodu (move, createframe, ...)
         self._args = []
 
+        # parsovani argumentu
         for i in args:
             arg = (i.attrib["type"], i.text)
             self._args.append(arg)
@@ -31,11 +33,13 @@ class instruction:
         return self._name + " " + str(self._args)
 
     def run(self):
+        # zavola postupne metodu execute na vsech instrukcich z instList
         while self.programCounter < len(self._instList):
             # pushframe
             if self._instList[self.programCounter].getName() == "PUSHFRAME":
                 self.pushFrame()
 
+            # popframe
             if self._instList[self.programCounter].getName() == "POPFRAME":
                 self.popFrame()
 
@@ -45,17 +49,16 @@ class instruction:
 
             # instrukce provadejici skok
             if self._instList[self.programCounter].getName() in ["JUMP", "JUMPIFEQ", "JUMPIFNEQ", "CALL", "RETURN"]:
+                # pokud metoda execute u provadene skokove instrukce vraci true, tak se provede skok
                 if self._instList[self.programCounter].execute():
+                    # pro instrukce CALL a RETURN se krome skoku provede zmena callStacku
                     if self._instList[self.programCounter].getName() == "RETURN":
-                        #print("returning to: ", self._callStack[-1])
                         self.setPC(int(self.popCallStack()))
                     elif self._instList[self.programCounter].getName() == "CALL":
-                        #print("calling: ", self._instList[self.programCounter].getArgs()[0][1])
                         self.pushCallStack(self.programCounter + 1)
                         self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
                     else:
-                        #print("jumping to: ", self._instList[self.programCounter].getArgs()[0][1], " at position: ", self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1]))
-                        # gets instruction on PC and gets its label possition, then sets program counter to that position
+                        # bete instrukci na PC a ziska pozici labelu, pak nastavi program counter na tu pozici
                         self.setPC(int(self.getLabelPos(self._instList[self.programCounter].getArgs()[0][1])))
                 else:
                     self.programCounter += 1
@@ -64,13 +67,14 @@ class instruction:
                 self.programCounter += 1
 
     def executeOnPC(self):
-        #print("Executing: ", self._instList[self.programCounter].getName())
+        # provede instrukci na aktualni pozici program counteru
         self._instList[self.programCounter].execute()
         self.instructionCounter += 1
-        #print("PC: ", self.programCounter)
 
     def sortInstList(self):
+        # seradi seznam instrukci podle poradi order
         self._instList.sort(key=lambda x: x.getOrder())
+        # kontrola duplicity orderu a zda order neni zaporny
         for i in range(len(self._instList)):
             if self._instList[i].getOrder() <= 0:
                 sys.stderr.write("error(32): zero on negative order")
@@ -81,6 +85,7 @@ class instruction:
                 sys.exit(32)
 
     def structureLabel(self):
+        # projde seznam instrukci a vytvori slovnik labelu
         for i in range(len(self._instList)):
             if self._instList[i].getName() == "LABEL":
                 if self._instList[i].getArgs()[0][1] in self._labelDic:
@@ -109,7 +114,7 @@ class instruction:
     def getGfVarList(self):
         return self._gfVarDic
     
-    # gets touple (type, value) and if it exists, returns its value
+    # podle ramce a jmena promene vraci touple (type, value)
     def getVarValue(self, var):
         try:
             varSplit = var.split("@")
@@ -127,7 +132,7 @@ class instruction:
             sys.stderr.write("Variable " + var + " not defined")
             sys.exit(54)
 
-    # gets touple (type, value) and stores it into GF, LF, TF frame variable dictionary
+    # vytvori promennou v danem ramci
     def addVar(self, var):
         varSplit = var.split("@")
         if varSplit[0] == "GF":
@@ -141,6 +146,7 @@ class instruction:
             sys.stderr.write("error: unknown frame")
             sys.exit(99)
 
+    # nastavi hodnotu promenne v danem ramci
     def setVarValue(self, var, type_, value):
         varSplit = var.split("@")
         if varSplit[0] == "GF":
@@ -157,6 +163,7 @@ class instruction:
     def addGfVar(self, var):
         self._gfVarDic.update({var: None})
 
+    # vraci touple (type, value) podle jmena promene z globalniho ramce
     def getGfVar(self, var):
         try:
             return self._gfVarDic[var]
@@ -172,7 +179,6 @@ class instruction:
             sys.exit(54)
 
     # label
-    # used in jumps
     def getLabelList(self):
         return self._labelDic
 
@@ -188,11 +194,9 @@ class instruction:
         return self.programCounter
     
     def setPC(self, value):
-        #print("set pc to: ", value)
-        #print("instruction on value: ", self._instList[value].getName())
         self.programCounter = value
 
-    # stack
+    # datovy zasoobnik
     def pushStack(self, symbol):
         self._stack.append(symbol)
 
@@ -206,7 +210,7 @@ class instruction:
     def stackEmpty(self):
         return len(self._stack) == 0
 
-    # frames
+    # ramce
     def createFrame(self):
         self._temporaryFrame = frame()
 
@@ -263,11 +267,13 @@ class instruction:
     def getInstructionCounter(self):
         return self.instructionCounter
 
+# trida pro ramec
 class frame:
+    # vlastni slovnik pro ulozeni promennych a metody pro praci s nimi
+
     def __init__(self):
         self.varDic = {}
         instruction._temporaryFrame = self
-        #print("frame created")
 
     def __str__(self):
         return str(self.varDic)
@@ -306,8 +312,8 @@ class move(instruction):
 
         super().setVarValue(var[1], symb[0], symb[1])
 
-
 class createframe(instruction):
+    # createframe, vytvori novy prazdny ramec
     def __init__(self, order, args):
         super().__init__("CREATEFRAME", order, args, self)
 
@@ -315,6 +321,7 @@ class createframe(instruction):
         super().createFrame()
 
 class pushframe(instruction):
+    # pushframe, vlozi TF do zasobniku ramcu a udela z nej LF
     def __init__(self, order, args):
         super().__init__("PUSHFRAME", order, args, self)
 
@@ -322,6 +329,7 @@ class pushframe(instruction):
         super().pushFrame()
 
 class popframe(instruction):
+    # popframe, vlozi LF z vrcholu zasobniku ramcu do TF
     def __init__(self, order, args):
         super().__init__("POPFRAME", order, args, self)
 
@@ -329,6 +337,7 @@ class popframe(instruction):
         super().popFrame()
 
 class defvar(instruction):
+    # defvar <var>, vytvori promennou var
     def __init__(self, order, args):
         super().__init__("DEFVAR", order, args, self)
 
@@ -336,8 +345,8 @@ class defvar(instruction):
         arg = super().getArgs()[0]
         super().addVar(arg[1])
         
-
 class call(instruction):
+    # call <label>, skoci na instrukci s danym label
     def __init__(self, order, args):
         super().__init__("CALL", order, args, self)
 
@@ -345,6 +354,7 @@ class call(instruction):
         return True
 
 class return_(instruction):
+    # return, skoci na instrukci na vrcholu zasobniku volani
     def __init__(self, order, args):
         super().__init__("RETURN", order, args, self)
 
@@ -355,7 +365,8 @@ class return_(instruction):
         
         return True
 
-class pushs(instruction):   
+class pushs(instruction):
+    # pushs <symb>, vlozi hodnotu symb na vrchol datoveho zasobniku
     def __init__(self, order, args):
         super().__init__("PUSHS", order, args, self)
 
@@ -370,8 +381,8 @@ class pushs(instruction):
         else:
             super().pushStack((type_, value))
 
-
-class pops(instruction):  
+class pops(instruction):
+    # pops <var>, vyjme hodnotu z vrcholu datoveho zasobniku a ulozi ji do var
     def __init__(self, order, args):
         super().__init__("POPS", order, args, self)
 
@@ -381,8 +392,8 @@ class pops(instruction):
         symbol = super().popStack()
         super().setVarValue(var, symbol[0], symbol[1])
 
-
-class add(instruction):  
+class add(instruction):
+    # add <var> <symb1> <symb2>, secte symb1 a symb2 a ulozi vysledek do var
     def __init__(self, order, args):
         super().__init__("ADD", order, args, self)
 
@@ -407,8 +418,8 @@ class add(instruction):
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
 
-
-class sub(instruction):  
+class sub(instruction):
+    # sub <var> <symb1> <symb2>, odecte symb2 od symb1 a ulozi vysledek do var
     def __init__(self, order, args):
         super().__init__("SUB", order, args, self)
 
@@ -433,8 +444,8 @@ class sub(instruction):
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
 
-
-class mul(instruction):  
+class mul(instruction):
+    # mul <var> <symb1> <symb2>, vynasobi symb1 a symb2 a ulozi vysledek do var
     def __init__(self, order, args):
         super().__init__("MUL", order, args, self)
 
@@ -459,8 +470,8 @@ class mul(instruction):
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
 
-
-class idiv(instruction):  
+class idiv(instruction):
+    # idiv <var> <symb1> <symb2>, vydeli symb1 a symb2 a ulozi vysledek do var
     def __init__(self, order, args):
         super().__init__("IDIV", order, args, self)
 
@@ -489,6 +500,7 @@ class idiv(instruction):
             sys.exit(53)
 
 class lt(instruction):
+    # lt <var> <symb1> <symb2>, porovna symb1 a symb2 a ulozi do var true, pokud je symb1 mensi nez symb2, jinak false
     def __init__(self, order, args):
         super().__init__("LT", order, args, self)
 
@@ -510,6 +522,7 @@ class lt(instruction):
             sys.exit(53)
 
 class gt(instruction):
+    # gt <var> <symb1> <symb2>, porovna symb1 a symb2 a ulozi do var true, pokud je symb1 vetsi nez symb2, jinak false
     def __init__(self, order, args):
         super().__init__("GT", order, args, self)
 
@@ -531,6 +544,7 @@ class gt(instruction):
             sys.exit(53)
 
 class eq(instruction):
+    # eq <var> <symb1> <symb2>, porovna symb1 a symb2 a ulozi do var true, pokud jsou symb1 a symb2 stejne, jinak false
     def __init__(self, order, args):
         super().__init__("EQ", order, args, self)
 
@@ -555,6 +569,7 @@ class eq(instruction):
             sys.exit(53)
 
 class and_(instruction):
+    # and <var> <symb1> <symb2>, provede logickou operaci and nad symb1 a symb2 a ulozi vysledek do var
     def __init__(self, order, args):
         super().__init__("AND", order, args, self)
 
@@ -578,6 +593,7 @@ class and_(instruction):
             sys.exit(53)
 
 class or_(instruction):
+    # or <var> <symb1> <symb2>, provede logickou operaci or nad symb1 a symb2 a ulozi vysledek do var
     def __init__(self, order, args):
         super().__init__("OR", order, args, self)
 
@@ -601,6 +617,7 @@ class or_(instruction):
             sys.exit(53)
 
 class not_(instruction):
+    # not <var> <symb>, zneguje symb a ulozi jeho hodnotu do var
     def __init__(self, order, args):
         super().__init__("NOT", order, args, self)
 
@@ -619,6 +636,7 @@ class not_(instruction):
             sys.exit(53)
 
 class int2char(instruction):
+    # int2char <var> <symb>, vezme symbol co je int a prevede ho do odpovidajiciho ascii znaku
     def __init__(self, order, args):
         super().__init__("INT2CHAR", order, args, self)
 
@@ -640,6 +658,7 @@ class int2char(instruction):
             sys.exit(53)
 
 class stri2int(instruction):
+    # str2int <var> <symb1> <symb2>, TODO
     def __init__(self, order, args):
         super().__init__("STRI2INT", order, args, self)
 
@@ -665,6 +684,7 @@ class stri2int(instruction):
             sys.exit(53)
 
 class read(instruction):
+    # read <var> <type>, nacte ze vstupu symbol daneho typu
     def __init__(self, order, args):
         super().__init__("READ", order, args, self)
 
@@ -700,6 +720,7 @@ class read(instruction):
         super().setVarValue(var[1], type_[1], value)
 
 class write(instruction):
+    # write <symb>, vypise na standartni vystup symbol v symb
     def __init__(self, order, args):
         super().__init__("WRITE", order, args, self)
 
@@ -737,6 +758,7 @@ class write(instruction):
             sys.exit(53)
 
 class concat(instruction):
+    # concat <var> <symb1> <symb2>, zkonkatenuje retezce v symb1 a symb2 a ulozi vysledek do var
     def __init__(self, order, args):
         super().__init__("CONCAT", order, args, self)
 
@@ -753,16 +775,13 @@ class concat(instruction):
             symb2 = super().getVarValue(symb2[1])
 
         if symb1[0] == "string" and symb2[0] == "string":
-            # debug print
-            #print("sym1:", symb1[1])
-            #print("sym2:", symb2[1])
-            #print("concat:", symb1[1] + symb2[1])
             super().setVarValue(var[1], "string", symb1[1] + symb2[1])
         else:
             sys.stderr.write("error(53): wrong type of operands")
             sys.exit(53)
 
 class strlen(instruction):
+    # strlen <var> <symb>, do var ulozi delku retezce v symb
     def __init__(self, order, args):
         super().__init__("STRLEN", order, args, self)
 
@@ -780,6 +799,7 @@ class strlen(instruction):
             sys.exit(53)
 
 class getchar(instruction):
+    # getchar <var> <symb1> <symb2>, do var ulozi znak na indexu symb2 v retezci symb1
     def __init__(self, order, args):
         super().__init__("GETCHAR", order, args, self)
         
@@ -805,6 +825,7 @@ class getchar(instruction):
             sys.exit(53)
 
 class setchar(instruction):
+    # setchar <var> <symb1> <symb2>, v retezci v var na indexu symb1 ulozi znak symb2
     def __init__(self, order, args):
         super().__init__("SETCHAR", order, args, self)
 
@@ -833,6 +854,7 @@ class setchar(instruction):
             sys.exit(53)
 
 class type_(instruction):
+    # type <var> <symb>, do var ulozi typ symb
     def __init__(self, order, args):
         super().__init__("TYPE", order, args, self)
 
@@ -849,6 +871,7 @@ class type_(instruction):
             super().setVarValue(var[1], "string", symb[0])
 
 class label(instruction):
+    # label <label>, definuje navesti
     def __init__(self, order, args):
         super().__init__("LABEL", order, args, self)
 
@@ -856,17 +879,15 @@ class label(instruction):
         pass
 
 class jump(instruction):
+    # jump <label>, provede skok na navesti
     def __init__(self, order, args):
         super().__init__("JUMP", order, args, self)
 
     def execute(self):
         return True
-        #instruction.programCounter = super().getLabelPos(label)
-        #super().setPC(int(super().getLabelPos(label)) - 1)
-        #print("PC from jump: ", super().getPC())
-        #print("setting PC to:", super().getLabelPos(label))
 
 class jumpifeq(instruction):
+    # jumpifeq <label> <symb1> <symb2>, provede skok na navesti, pokud jsou symb1 a symb2 stejne
     def __init__(self, order, args):
         super().__init__("JUMPIFEQ", order, args, self)
 
@@ -887,23 +908,15 @@ class jumpifeq(instruction):
 
         if symb1[0] == symb2[0]:
             if symb1[0] == "nil":
-                #instruction.programCounter = super().getLabelPos(label)
-                #super().setPC(int(super().getLabelPos(label)) - 1)
                 goingtoJump = True
             elif symb1[0] == "bool":
                 if symb1[1] == symb2[1]:
-                    #instruction.programCounter = super().getLabelPos(label)
-                    #super().setPC(int(super().getLabelPos(label)) - 1)
                     goingtoJump = True
             elif symb1[0] == "int":
                 if int(symb1[1]) == int(symb2[1]):
-                    #instruction.programCounter = super().getLabelPos(label)
-                    #super().setPC(int(super().getLabelPos(label)) - 1)
                     goingtoJump = True
             elif symb1[0] == "string":
                 if symb1[1] == symb2[1]:
-                    #instruction.programCounter = super().getLabelPos(label)
-                    #super().setPC(int(super().getLabelPos(label)) - 1)
                     goingtoJump = True
         else:
             sys.stderr.write("error(53): wrong type of operands")
@@ -912,6 +925,7 @@ class jumpifeq(instruction):
         return goingtoJump
 
 class jumpifneq(instruction):
+    # jumpifneq <label> <symb1> <symb2>, provede skok na navesti, pokud nejsou symb1 a symb2 stejne
     def __init__(self, order, args):
         super().__init__("JUMPIFNEQ", order, args, self)
 
@@ -932,23 +946,15 @@ class jumpifneq(instruction):
 
         if symb1[0] == symb2[0]:
             if symb1[0] == "nil":
-                #instruction.programCounter = super().getLabelPos(label)
-                #super().setPC(int(super().getLabelPos(label)) - 1)
                 goingtoJump = True
             elif symb1[0] == "bool":
                 if symb1[1] != symb2[1]:
-                    #instruction.programCounter = super().getLabelPos(label)
-                    #super().setPC(int(super().getLabelPos(label)) - 1)
                     goingtoJump = True
             elif symb1[0] == "int":
                 if int(symb1[1]) != int(symb2[1]):
-                    #instruction.programCounter = super().getLabelPos(label)
-                    #super().setPC(int(super().getLabelPos(label)) - 1)
                     goingtoJump = True
             elif symb1[0] == "string":
                 if symb1[1] != symb2[1]:
-                    #instruction.programCounter = super().getLabelPos(label)
-                    #super().setPC(int(super().getLabelPos(label)) - 1)
                     goingtoJump = True
 
         else:
@@ -958,6 +964,7 @@ class jumpifneq(instruction):
         return goingtoJump
 
 class exit_(instruction):
+    # exit <symb>, ukonci program s navratovou hodnotou symb
     def __init__(self, order, args):
         super().__init__("EXIT", order, args, self)
 
@@ -977,6 +984,7 @@ class exit_(instruction):
             sys.exit(53)
 
 class dprint(instruction):
+    # dprint <symb>, vypise na stderr hodnotu symb
     def __init__(self, order, args):
         super().__init__("DPRINT", order, args, self)
 
@@ -996,6 +1004,7 @@ class dprint(instruction):
             sys.exit(53)
 
 class break_(instruction):
+    # break, vypise stav interpretu
     def __init__(self, order, args):
         super().__init__("BREAK", order, args, self)
 
@@ -1019,6 +1028,7 @@ class instrucionFactory:
     @classmethod
     def createInstruction(cls, opcode, order, args):
 
+        # kontrola spravneho opcode
         try:
             opcode = opcode.upper()
         except:
@@ -1116,7 +1126,6 @@ if __name__ == "__main__":
         sys.exit(10)
 
     if (sourceFile == None):
-        #TODO stdin source file
         sourceFile = input()
 
     if (inputFile == None):
@@ -1145,15 +1154,14 @@ if __name__ == "__main__":
 
     # parsovani instrukci
     for i in root:
-        # instruction tag check
+        # kontrola tagu instrukce
         if i.tag != "instruction":
             sys.stderr.write("error(32): incorrect instruction tag")
             sys.exit(32)
 
-        #print(i.tag, i.attrib)
         args = []
         for j in i:
-            # argument tag check
+            # kontrola tagu argumentu
             if j.tag == "arg1" or j.tag == "arg2" or j.tag == "arg3":
                 args.append(j)
             else:
@@ -1165,22 +1173,6 @@ if __name__ == "__main__":
         # vytvoreni instance instrukce
         i1 = instrucionFactory.createInstruction(i.get("opcode"), i.get("order"), args)
 
-    # spusteni instrukci
-    #lenOfInstList = len(super(type(i1), i1).getInstList())
-    #print("len of label list:", lenOfInstList)
-    #while super(type(i1), i1).getPC() != lenOfInstList:
-    #    super(type(i1), i1).executeOnPC()
-
     super(type(i1), i1).sortInstList()
     super(type(i1), i1).structureLabel()
-    #print('\n'.join(str(i) for i in super(type(i1), i1).getInstList()))
-    #print("")
     super(type(i1), i1).run()
-
-    # debug print
-    #for i in super(type(i1), i1).getFrameStack():
-    #    print("frame on stack: ", str(i))
-    #print("temporary frame: ", str(super(type(i1), i1).getTemporaryFrame()))
-    #print("instruction list: ", super(type(i1), i1).getInstList())
-    #print(i1.getGfVarList())
-    #print(i1.getLabelList())

@@ -1176,3 +1176,4 @@ if __name__ == "__main__":
     super(type(i1), i1).sortInstList()
     super(type(i1), i1).structureLabel()
     super(type(i1), i1).run()
+

@@ -318,7 +318,7 @@ class createframe(instruction):
         super().__init__("CREATEFRAME", order, args, self)
 
     def execute(self):
-        super().createFrame()
+        pass
 
 class pushframe(instruction):
     # pushframe, vlozi TF do zasobniku ramcu a udela z nej LF
@@ -326,7 +326,7 @@ class pushframe(instruction):
         super().__init__("PUSHFRAME", order, args, self)
 
     def execute(self):
-        super().pushFrame()
+        pass
 
 class popframe(instruction):
     # popframe, vlozi LF z vrcholu zasobniku ramcu do TF
@@ -334,7 +334,7 @@ class popframe(instruction):
         super().__init__("POPFRAME", order, args, self)
 
     def execute(self):
-        super().popFrame()
+        pass
 
 class defvar(instruction):
     # defvar <var>, vytvori promennou var

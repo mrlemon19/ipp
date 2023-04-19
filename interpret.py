@@ -27,6 +27,9 @@ class instruction:
         # parsovani argumentu
         for i in args:
             arg = (i.attrib["type"], i.text)
+            # prazdny string
+            if arg[0] == "string" and arg[1] == None:
+                arg = ("string", "")
             self._args.append(arg)
 
     def __str__(self):
@@ -1161,7 +1164,7 @@ if __name__ == "__main__":
 
         args = []
         for j in i:
-            # kontrola tagu argumentu
+            # kontrola tagu argumentue
             if j.tag == "arg1" or j.tag == "arg2" or j.tag == "arg3":
                 args.append(j)
             else:
